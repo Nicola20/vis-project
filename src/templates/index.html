@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <title>Videogame Sunburst</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="{{ url_for('static', filename='interaction.js') }}"></script>
+    <script src="https://d3js.org/d3.v4.min.js"</script>
+        <script type="text/javascript" src="{{ url_for('static', filename='interaction.js') }}"></script>
+    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
 
 </head>
 <body>
+    <!--
     <div class="categories">
         <div class="category">Rank</div>
         <div class="category">Platform</div>
@@ -19,9 +19,9 @@
         <div class="category">Genre</div>
         <div class="category">Sales</div>
         <div class="category">Publisher</div>
-    </div>
-
-    <svg id="sunburst"></svg>
+    </div>-->
+    <div id="barchart"></div>
+    <div id="genre_pie"></div>
 
 </body>
 </html>
