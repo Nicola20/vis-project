@@ -1,4 +1,17 @@
 body {
-    background-color: #263238;
+
+   background-color: #263238;
+}
+
+#barsvg {
+    background-color: #37474F;
+}
+
+text {
+    fill: white;
+}
+
+line {
+    stroke: white;
 }
 
