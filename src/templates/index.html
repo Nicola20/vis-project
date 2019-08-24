@@ -38,7 +38,7 @@
     const size = 400
     const radius = size / 2;
 
-    function getFeatureDataForPie(data, feature) {
+    function getFeatureDataForPie(data, feature, scaleBySales, kindOfSales) {
         const featureData = [];
 
         for (var i = 0; i < data.length; i++) {
@@ -46,13 +46,21 @@
             var flag = true;
             for (var j = 0; j < featureData.length; j++) {
                 if (featureData[j].key == featureKey) {
-                    featureData[j].value += 1;
+                    if (scaleBySales) {
+                        featureData[j].value += data[i][kindOfSales];
+                    } else {
+                        featureData[j].value += 1;
+                    }
                     flag = false;
                     break;
                 } 
             }
             if (flag) {
-                featureData.push({"key" : featureKey, "value" : 1})
+                if (scaleBySales) {
+                    featureData.push({"key" : featureKey, "value" : data[i][kindOfSales]});
+                } else {
+                    featureData.push({"key" : featureKey, "value" : 1});
+                }
             }
         }
 
@@ -91,7 +99,7 @@
 
         const svg = d3.select("#" + feature);
 
-        const featureData = getFeatureDataForPie(data, feature);
+        const featureData = getFeatureDataForPie(data, feature, scaleBySales, kindOfSales);
 
         var arc = d3.arc()
             .innerRadius(radius - 130)
@@ -121,14 +129,60 @@
     }
 
 
-
-
     function renderPies(data) {
-        renderPie(data, "platform", "blue", null, null);
-        renderPie(data, "genre", "yellow", null, null);
-        renderPie(data, "publisher", "red", null, null);
+        var scaleBySales = false;
+        var kindOfSales = "global_sales";
+
+        renderPie(data, "platform", "blue", scaleBySales, kindOfSales);
+        renderPie(data, "genre", "yellow", scaleBySales, kindOfSales);
+        renderPie(data, "publisher", "red", scaleBySales, kindOfSales);
     }
 
+
+
+
+
+
+
+
+
+
+    function mouseoverBar(d) {
+        d3.select(this)
+            .style("opacity", "1.0");
+
+        var c = this.getAttribute("class").replace("rect ", "");
+        var platform = c.substring(0, c.indexOf(" "));
+        var temp = c.substring(c.indexOf(" ") + 1);
+        var genre = temp.substring(0, temp.indexOf(" "));
+        var publisher = temp.substring(temp.indexOf(" ") + 1);
+                
+        d3.selectAll(".arc." + platform + " path")
+            .style("opacity", "1.0");
+        d3.selectAll(".arc." + genre + " path")
+            .style("opacity", "1.0");
+        d3.selectAll(".arc." + publisher + " path")
+            .style("opacity", "1.0");
+    }
+
+
+    function mouseoutBar(d) {
+        d3.select(this)
+            .style("opacity", "0.5")
+
+        var c = this.getAttribute("class").replace("rect ", "");
+        var platform = c.substring(0, c.indexOf(" "));
+        var temp = c.substring(c.indexOf(" ") + 1);
+        var genre = temp.substring(0, temp.indexOf(" "));
+        var publisher = temp.substring(temp.indexOf(" ") + 1);
+                
+        d3.selectAll(".arc." + platform + " path")
+            .style("opacity", "0.5");
+        d3.selectAll(".arc." + genre + " path")
+            .style("opacity", "0.5");
+        d3.selectAll(".arc." + publisher + " path")
+            .style("opacity", "0.5");
+    }
 
 
     function renderBar(data) {
@@ -202,45 +256,10 @@
             .attr('width', d => xScale(xValue(d)))
             .attr('height', yScale.bandwidth())
             .style("opacity", "0.5")
-            .on("mouseover", hover)
-            .on("mouseout", out);
+            .on("mouseover", mouseoverBar)
+            .on("mouseout", mouseoutBar);
 
-        function hover (d) {
-            d3.select(this)
-                .style("opacity", "1.0");
 
-            var c = this.getAttribute("class").replace("rect ", "");
-            var platform = c.substring(0, c.indexOf(" "));
-            var temp = c.substring(c.indexOf(" ") + 1);
-            var genre = temp.substring(0, temp.indexOf(" "));
-            var publisher = temp.substring(temp.indexOf(" ") + 1);
-                
-            d3.selectAll(".arc." + platform + " path")
-                .style("opacity", "1.0");
-            d3.selectAll(".arc." + genre + " path")
-                .style("opacity", "1.0");
-            d3.selectAll(".arc." + publisher + " path")
-                .style("opacity", "1.0");
-        }
-
-        function out(d) {
-
-            d3.select(this)
-                .style("opacity", "0.5")
-
-            var c = this.getAttribute("class").replace("rect ", "");
-            var platform = c.substring(0, c.indexOf(" "));
-            var temp = c.substring(c.indexOf(" ") + 1);
-            var genre = temp.substring(0, temp.indexOf(" "));
-            var publisher = temp.substring(temp.indexOf(" ") + 1);
-                
-            d3.selectAll(".arc." + platform + " path")
-                .style("opacity", "0.5");
-            d3.selectAll(".arc." + genre + " path")
-                .style("opacity", "0.5");
-            d3.selectAll(".arc." + publisher + " path")
-                .style("opacity", "0.5");
-        }
     }
     
     function render(data) {
@@ -251,7 +270,7 @@
    
     fetch("../static/data.json")
         .then(file => file.json())
-        .then(data => render(data.slice(0, 100)));
+        .then(data => render(data.slice(0, 10)));
 
 
 
