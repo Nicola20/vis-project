@@ -1,5 +1,4 @@
 body {
-
    background-color: #263238;
 }
 
@@ -30,17 +29,45 @@ line {
 .tabhandle {
     width: 70px;
     height: 50px;
-    position:fixed;
+    /*position:fixed;*/ //element sticks to this position
     border-style: none;
     border-radius: 0 5px 5px 0;
-    background-color: #42a5f5;
+    background-color: #0288d1;
     margin-left: -10px;
-
-
+    margin-top: 5px;
+    display: inline-block;
+    position: fixed;
+    z-index: 20;
 }
+
 .tabhandle:hover {
     width: 75px;
     height: 51px;
 }
+
+#filter-container {
+    background-color: white;
+    height: 800px;
+    display: none;
+    z-index: 20;
+    position: fixed;
+    width: 25%;
+    left: -8px;
+    vertical-align: top;
+}
+
+#header {
+    background-color: #0288d1;
+    height: 65px;
+    text-align: center;
+    padding-top: 14px;
+}
+
+#header span {
+    transform: translateX(50%) translateY(50%);
+    color: white;
+    font-size: 20px;
+}
+
 
 
