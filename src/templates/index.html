@@ -36,35 +36,62 @@
 <script type="text/javascript">
 
     const size = 400
+    const radius = size / 2;
 
-    function renderPlatform(data) {
-
-        const radius = size / 2;
-
-        d3.select("#platform-container")
-            .append("svg")
-            .attr("id", "platform")
-            .attr("width", size)
-            .attr("height", size);
-
-        const svg = d3.select("#platform");
-
-        const platforms = [];
+    function getFeatureDataForPie(data, feature) {
+        const featureData = [];
 
         for (var i = 0; i < data.length; i++) {
-            var platform = data[i].platform;
+            var featureKey = data[i][feature];
             var flag = true;
-            for (var j = 0; j < platforms.length; j++) {
-                if (platforms[j].key == platform) {
-                    platforms[j].value += 1;
+            for (var j = 0; j < featureData.length; j++) {
+                if (featureData[j].key == featureKey) {
+                    featureData[j].value += 1;
                     flag = false;
                     break;
                 } 
             }
             if (flag) {
-                platforms.push({"key" : platform, "value" : 1})
+                featureData.push({"key" : featureKey, "value" : 1})
             }
         }
+
+        return featureData;
+    }
+
+
+    function mouseoverPie(d) {
+        d3.select(this)
+            .style("opacity", "1.0");
+
+        var c = this.parentElement.getAttribute("class");
+        c = c.substring(c.indexOf(" ") + 1);
+        d3.selectAll(".rect." + c)
+            .style("opacity", "1.0");
+    }
+
+
+    function mouseoutPie(d) {
+        d3.select(this)
+            .style("opacity", "0.5")
+
+        var c = this.parentElement.getAttribute("class");
+        c = c.substring(c.indexOf(" ") + 1);
+        d3.selectAll(".rect." + c)
+            .style("opacity", "0.5");
+    }
+
+
+    function renderPie(data, feature, color, scaleBySales, kindOfSales) {
+        d3.select("#"  + feature + "-container")
+            .append("svg")
+            .attr("id", feature)
+            .attr("width", size)
+            .attr("height", size);
+
+        const svg = d3.select("#" + feature);
+
+        const featureData = getFeatureDataForPie(data, feature);
 
         var arc = d3.arc()
             .innerRadius(radius - 130)
@@ -74,7 +101,7 @@
             .value(d => d.value);
 
         var g = svg.selectAll(".arc")
-            .data(pie(platforms))
+            .data(pie(featureData))
             .enter()
             .append("g")
             .attr("transform", "translate(" + radius + "," + radius + ")")
@@ -86,201 +113,26 @@
 
         g.append("path")
             .attr("d", arc)
-            .style("fill", "blue")
+            .style("fill", color)
             .style("stroke", "black")
             .style("opacity", "0.5")
-            .on("mouseover", hover)
-            .on("mouseout", out);
-
-            function hover (d) {
-                d3.select(this)
-                    .style("opacity", "1.0");
-
-                var c = this.parentElement.getAttribute("class");
-                c = c.substring(c.indexOf(" ") + 1);
-                d3.selectAll(".rect." + c)
-                    .style("opacity", "1.0");
-            }
-
-            function out(d) {
-                d3.select(this)
-                    .style("opacity", "0.5")
-
-                var c = this.parentElement.getAttribute("class");
-                c = c.substring(c.indexOf(" ") + 1);
-                d3.selectAll(".rect." + c)
-                    .style("opacity", "0.5");
-            }
+            .on("mouseover", mouseoverPie)
+            .on("mouseout", mouseoutPie);
     }
 
-
-    function renderGenre(data) {
-
-        const radius = size / 2;
-
-        d3.select("#genre-container")
-            .append("svg")
-            .attr("id", "genre")
-            .attr("width", size)
-            .attr("height", size);
-
-        const svg = d3.select("#genre");
-
-        const genres = [];
-
-        for (var i = 0; i < data.length; i++) {
-            var genre = data[i].genre;
-            var flag = true;
-            for (var j = 0; j < genres.length; j++) {
-                if (genres[j].key == genre) {
-                    genres[j].value += 1;
-                    flag = false;
-                    break;
-                } 
-            }
-            if (flag) {
-                genres.push({"key" : genre, "value" : 1})
-            }
-        }
-
-        var arc = d3.arc()
-            .innerRadius(radius - 130)
-            .outerRadius(radius);
-
-        var pie = d3.pie()
-            .value(d => d.value);
-
-        var g = svg.selectAll(".arc")
-            .data(pie(genres))
-            .enter()
-            .append("g")
-            .attr("transform", "translate(" + radius + "," + radius + ")")
-            .attr("class", function (d) {
-                var c = "arc ";
-                c += d.data.key;
-                return c;
-            });
-
-        g.append("path")
-            .attr("d", arc)
-            .style("fill", "yellow")
-            .style("stroke", "black")
-            .style("opacity", "0.5")
-            .on("mouseover", hover)
-            .on("mouseout", out);
-
-            function hover (d) {
-                d3.select(this)
-                    .style("opacity", "1.0");
-
-                var c = this.parentElement.getAttribute("class");
-                c = c.substring(c.indexOf(" ") + 1);
-                d3.selectAll(".rect." + c)
-                    .style("opacity", "1.0");
-            }
-
-            function out(d) {
-                d3.select(this)
-                    .style("opacity", "0.5")
-
-                var c = this.parentElement.getAttribute("class");
-                c = c.substring(c.indexOf(" ") + 1);
-                d3.selectAll(".rect." + c)
-                    .style("opacity", "0.5");
-            }
-    }
-
-
-function renderPublisher(data) {
-
-        
-        const radius = size / 2;
-
-        d3.select("#publisher-container")
-            .append("svg")
-            .attr("id", "publisher")
-            .attr("width", size)
-            .attr("height", size);
-
-        const svg = d3.select("#publisher");
-
-        const publishers = [];
-
-        for (var i = 0; i < data.length; i++) {
-            var publisher = data[i].publisher;
-            var flag = true;
-            for (var j = 0; j < publishers.length; j++) {
-                if (publishers[j].key == publisher) {
-                    publishers[j].value += 1;
-                    flag = false;
-                    break;
-                } 
-            }
-            if (flag) {
-                publishers.push({"key" : publisher, "value" : 1})
-            }
-        }
-
-        var arc = d3.arc()
-            .innerRadius(radius - 130)
-            .outerRadius(radius);
-
-        var pie = d3.pie()
-            .value(d => d.value);
-
-        var g = svg.selectAll(".arc")
-            .data(pie(publishers))
-            .enter()
-            .append("g")
-            .attr("transform", "translate(" + radius + "," + radius + ")")
-            .attr("class", function (d) {
-                var c = "arc ";
-                c += d.data.key.replace(/ /g, "-");
-                return c;
-            });
-
-        g.append("path")
-            .attr("d", arc)
-            .style("fill", "red")
-            .style("stroke", "black")
-            .style("opacity", "0.5")
-            .on("mouseover", hover)
-            .on("mouseout", out);
-
-            function hover (d) {
-                d3.select(this)
-                    .style("opacity", "1.0");
-
-                var c = this.parentElement.getAttribute("class");
-                c = c.substring(c.indexOf(" ") + 1);
-                d3.selectAll(".rect." + c)
-                    .style("opacity", "1.0");
-            }
-
-            function out(d) {
-                d3.select(this)
-                    .style("opacity", "0.5")
-
-                var c = this.parentElement.getAttribute("class");
-                c = c.substring(c.indexOf(" ") + 1);
-                d3.selectAll(".rect." + c)
-                    .style("opacity", "0.5");
-            }
-    }
 
 
 
     function renderPies(data) {
-        renderPlatform(data);
-        renderGenre(data);
-        renderPublisher(data);
+        renderPie(data, "platform", "blue", null, null);
+        renderPie(data, "genre", "yellow", null, null);
+        renderPie(data, "publisher", "red", null, null);
     }
+
+
 
     function renderBar(data) {
 
-    }
-    
-    function render(data) {
 
         const svg = d3.select("#barchart");
 
@@ -353,56 +205,53 @@ function renderPublisher(data) {
             .on("mouseover", hover)
             .on("mouseout", out);
 
-            function hover (d) {
-                d3.select(this)
-                    .style("opacity", "1.0");
+        function hover (d) {
+            d3.select(this)
+                .style("opacity", "1.0");
 
-                var c = this.getAttribute("class").replace("rect ", "");
-                var platform = c.substring(0, c.indexOf(" "));
-                var temp = c.substring(c.indexOf(" ") + 1);
-                var genre = temp.substring(0, temp.indexOf(" "));
-                var publisher = temp.substring(temp.indexOf(" ") + 1);
+            var c = this.getAttribute("class").replace("rect ", "");
+            var platform = c.substring(0, c.indexOf(" "));
+            var temp = c.substring(c.indexOf(" ") + 1);
+            var genre = temp.substring(0, temp.indexOf(" "));
+            var publisher = temp.substring(temp.indexOf(" ") + 1);
                 
+            d3.selectAll(".arc." + platform + " path")
+                .style("opacity", "1.0");
+            d3.selectAll(".arc." + genre + " path")
+                .style("opacity", "1.0");
+            d3.selectAll(".arc." + publisher + " path")
+                .style("opacity", "1.0");
+        }
+
+        function out(d) {
+
+            d3.select(this)
+                .style("opacity", "0.5")
+
+            var c = this.getAttribute("class").replace("rect ", "");
+            var platform = c.substring(0, c.indexOf(" "));
+            var temp = c.substring(c.indexOf(" ") + 1);
+            var genre = temp.substring(0, temp.indexOf(" "));
+            var publisher = temp.substring(temp.indexOf(" ") + 1);
                 
-                console.log(platform)
-                console.log(genre)
-                console.log(publisher)
-                d3.selectAll(".arc." + platform + " path")
-                    .style("opacity", "1.0");
-                d3.selectAll(".arc." + genre + " path")
-                    .style("opacity", "1.0");
-                d3.selectAll(".arc." + publisher + " path")
-                    .style("opacity", "1.0");
-
-            }
-
-            function out(d) {
-                d3.select(this)
-                    .style("opacity", "0.5")
-
-
-               var c = this.getAttribute("class").replace("rect ", "");
-                var platform = c.substring(0, c.indexOf(" "));
-                var temp = c.substring(c.indexOf(" ") + 1);
-                var genre = temp.substring(0, temp.indexOf(" "));
-                var publisher = temp.substring(temp.indexOf(" ") + 1);
-                
-                
-                d3.selectAll(".arc." + platform + " path")
-                    .style("opacity", "0.5");
-                d3.selectAll(".arc." + genre + " path")
-                    .style("opacity", "0.5");
-                d3.selectAll(".arc." + publisher + " path")
-                    .style("opacity", "0.5");
-            }
-
+            d3.selectAll(".arc." + platform + " path")
+                .style("opacity", "0.5");
+            d3.selectAll(".arc." + genre + " path")
+                .style("opacity", "0.5");
+            d3.selectAll(".arc." + publisher + " path")
+                .style("opacity", "0.5");
+        }
+    }
+    
+    function render(data) {
+        renderBar(data);
         renderPies(data);
       }
         
    
     fetch("../static/data.json")
         .then(file => file.json())
-        .then(data => render(data.slice(0, 20)));
+        .then(data => render(data.slice(0, 100)));
 
 
 
