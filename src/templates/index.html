@@ -21,13 +21,9 @@
 
 
     <div class="pie-chart-container">
-
- 
         <div id="platform-container"></div>
         <div id="genre-container"></div>
         <div id="publisher-container"></div>
-
-
     </div>
 </div>
 
@@ -35,8 +31,27 @@
 
 <script type="text/javascript">
 
+// -------------------------------------------------------------------------
+// CONSTANTS
+// -------------------------------------------------------------------------
+
+
     const size = 400
     const radius = size / 2;
+
+    var scaleBySales = false;
+    const kindOfSales = "global_sales";
+
+
+// -------------------------------------------------------------------------
+// PIE-CHART
+// -------------------------------------------------------------------------
+
+
+    // ---------------------------------------------------------------------
+    // HELPERS
+    // ---------------------------------------------------------------------
+
 
     function getFeatureDataForPie(data, feature, scaleBySales, kindOfSales) {
         const featureData = [];
@@ -68,6 +83,18 @@
     }
 
 
+    function getClassForPie(d) {
+        var c = "arc ";
+        c += d.data.key;
+        return c;
+    }
+
+
+    // ---------------------------------------------------------------------
+    // MOUSE-EVENTS
+    // ---------------------------------------------------------------------
+
+
     function mouseoverPie(d) {
         d3.select(this)
             .style("opacity", "1.0");
@@ -88,6 +115,15 @@
         d3.selectAll(".rect." + c)
             .style("opacity", "0.5");
     }
+
+    function onclickPie(d) {
+        console.log("test");
+    }
+
+
+    // ---------------------------------------------------------------------
+    // RENDERING
+    // ---------------------------------------------------------------------
 
 
     function renderPie(data, feature, color, scaleBySales, kindOfSales) {
@@ -113,11 +149,7 @@
             .enter()
             .append("g")
             .attr("transform", "translate(" + radius + "," + radius + ")")
-            .attr("class", function (d) {
-                var c = "arc ";
-                c += d.data.key;
-                return c;
-            });
+            .attr("class", getClassForPie);
 
         g.append("path")
             .attr("d", arc)
@@ -125,13 +157,14 @@
             .style("stroke", "black")
             .style("opacity", "0.5")
             .on("mouseover", mouseoverPie)
-            .on("mouseout", mouseoutPie);
+            .on("mouseout", mouseoutPie)
+            .on("click", onclickPie);
+
+        g.exit().remove();
     }
 
 
     function renderPies(data) {
-        var scaleBySales = false;
-        var kindOfSales = "global_sales";
 
         renderPie(data, "platform", "blue", scaleBySales, kindOfSales);
         renderPie(data, "genre", "yellow", scaleBySales, kindOfSales);
@@ -139,29 +172,53 @@
     }
 
 
+// -------------------------------------------------------------------------
+// BAR-CHART
+// -------------------------------------------------------------------------
 
 
+    // ---------------------------------------------------------------------
+    // HELPERS
+    // ---------------------------------------------------------------------
 
 
+    function getClassForBar(d) {
+        var c = "rect ";
+        c += d.platform;
+        c += " ";
+        c += d.genre;
+        c += " ";
+        c += d.publisher.replace(/ /g, "-");
+        return c;
+    }
 
 
+    function getSelectionOnPie(object) {
+        var c = object.getAttribute("class").replace("rect ", "");
+        var platform = c.substring(0, c.indexOf(" "));
+        var temp = c.substring(c.indexOf(" ") + 1);
+        var genre = temp.substring(0, temp.indexOf(" "));
+        var publisher = temp.substring(temp.indexOf(" ") + 1);
+        return {"platform" : platform, "genre" : genre, "publisher" : publisher};
+    }
+
+
+    // ---------------------------------------------------------------------
+    // MOUSE-EVENTS
+    // ---------------------------------------------------------------------
 
 
     function mouseoverBar(d) {
         d3.select(this)
             .style("opacity", "1.0");
 
-        var c = this.getAttribute("class").replace("rect ", "");
-        var platform = c.substring(0, c.indexOf(" "));
-        var temp = c.substring(c.indexOf(" ") + 1);
-        var genre = temp.substring(0, temp.indexOf(" "));
-        var publisher = temp.substring(temp.indexOf(" ") + 1);
+        var selectionOnPie = getSelectionOnPie(this);
                 
-        d3.selectAll(".arc." + platform + " path")
+        d3.selectAll(".arc." + selectionOnPie.platform + " path")
             .style("opacity", "1.0");
-        d3.selectAll(".arc." + genre + " path")
+        d3.selectAll(".arc." + selectionOnPie.genre + " path")
             .style("opacity", "1.0");
-        d3.selectAll(".arc." + publisher + " path")
+        d3.selectAll(".arc." + selectionOnPie.publisher + " path")
             .style("opacity", "1.0");
     }
 
@@ -170,23 +227,23 @@
         d3.select(this)
             .style("opacity", "0.5")
 
-        var c = this.getAttribute("class").replace("rect ", "");
-        var platform = c.substring(0, c.indexOf(" "));
-        var temp = c.substring(c.indexOf(" ") + 1);
-        var genre = temp.substring(0, temp.indexOf(" "));
-        var publisher = temp.substring(temp.indexOf(" ") + 1);
+        var selectionOnPie = getSelectionOnPie(this);
                 
-        d3.selectAll(".arc." + platform + " path")
+        d3.selectAll(".arc." + selectionOnPie.platform + " path")
             .style("opacity", "0.5");
-        d3.selectAll(".arc." + genre + " path")
+        d3.selectAll(".arc." + selectionOnPie.genre + " path")
             .style("opacity", "0.5");
-        d3.selectAll(".arc." + publisher + " path")
+        d3.selectAll(".arc." + selectionOnPie.publisher + " path")
             .style("opacity", "0.5");
     }
 
 
-    function renderBar(data) {
+    // ---------------------------------------------------------------------
+    // RENDERING
+    // ---------------------------------------------------------------------
 
+
+    function renderBar(data) {
 
         const svg = d3.select("#barchart");
 
@@ -242,16 +299,7 @@
       
         g.selectAll('rect').data(data)
             .enter().append('rect')
-            .attr("class", function(d) {
-                var c = "rect ";
-                c += d.platform;
-                c += " ";
-                c += d.genre;
-                c += " ";
-                c += d.publisher.replace(/ /g, "-");
-                console.log(c);
-                return c;
-            })
+            .attr("class", getClassForBar)
             .attr('y', d => yScale(yValue(d)))
             .attr('width', d => xScale(xValue(d)))
             .attr('height', yScale.bandwidth())
@@ -262,6 +310,11 @@
 
     }
     
+
+
+// -------------------------------------------------------------------------
+// 
+// -------------------------------------------------------------------------
     function render(data) {
         renderBar(data);
         renderPies(data);
