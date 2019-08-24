@@ -14,7 +14,7 @@
 
 <div class="container">
     <div class="barchart-container">
-        <svg id="barchart" width="600" height="1800"></svg>
+        <svg id="barchart" width="600" height="1300"></svg>
     </div>
 
 
@@ -71,7 +71,6 @@
             .outerRadius(radius);
 
         var pie = d3.pie()
-
             .value(d => d.value);
 
         var g = svg.selectAll(".arc")
@@ -96,11 +95,21 @@
             function hover (d) {
                 d3.select(this)
                     .style("opacity", "1.0");
+
+                var c = this.parentElement.getAttribute("class");
+                c = c.substring(c.indexOf(" ") + 1);
+                d3.selectAll(".rect." + c)
+                    .style("opacity", "1.0");
             }
 
             function out(d) {
                 d3.select(this)
                     .style("opacity", "0.5")
+
+                var c = this.parentElement.getAttribute("class");
+                c = c.substring(c.indexOf(" ") + 1);
+                d3.selectAll(".rect." + c)
+                    .style("opacity", "0.5");
             }
     }
 
@@ -146,7 +155,11 @@
             .enter()
             .append("g")
             .attr("transform", "translate(" + radius + "," + radius + ")")
-            .attr("class", "arc");
+            .attr("class", function (d) {
+                var c = "arc ";
+                c += d.data.key;
+                return c;
+            });
 
         g.append("path")
             .attr("d", arc)
@@ -159,11 +172,21 @@
             function hover (d) {
                 d3.select(this)
                     .style("opacity", "1.0");
+
+                var c = this.parentElement.getAttribute("class");
+                c = c.substring(c.indexOf(" ") + 1);
+                d3.selectAll(".rect." + c)
+                    .style("opacity", "1.0");
             }
 
             function out(d) {
                 d3.select(this)
                     .style("opacity", "0.5")
+
+                var c = this.parentElement.getAttribute("class");
+                c = c.substring(c.indexOf(" ") + 1);
+                d3.selectAll(".rect." + c)
+                    .style("opacity", "0.5");
             }
     }
 
@@ -210,7 +233,11 @@ function renderPublisher(data) {
             .enter()
             .append("g")
             .attr("transform", "translate(" + radius + "," + radius + ")")
-            .attr("class", "arc");
+            .attr("class", function (d) {
+                var c = "arc ";
+                c += d.data.key.replace(/ /g, "-");
+                return c;
+            });
 
         g.append("path")
             .attr("d", arc)
@@ -223,11 +250,21 @@ function renderPublisher(data) {
             function hover (d) {
                 d3.select(this)
                     .style("opacity", "1.0");
+
+                var c = this.parentElement.getAttribute("class");
+                c = c.substring(c.indexOf(" ") + 1);
+                d3.selectAll(".rect." + c)
+                    .style("opacity", "1.0");
             }
 
             function out(d) {
                 d3.select(this)
                     .style("opacity", "0.5")
+
+                var c = this.parentElement.getAttribute("class");
+                c = c.substring(c.indexOf(" ") + 1);
+                d3.selectAll(".rect." + c)
+                    .style("opacity", "0.5");
             }
     }
 
@@ -300,10 +337,13 @@ function renderPublisher(data) {
         g.selectAll('rect').data(data)
             .enter().append('rect')
             .attr("class", function(d) {
-                var c = "";
+                var c = "rect ";
+                c += d.platform;
+                c += " ";
                 c += d.genre;
                 c += " ";
-                c += d.platform;
+                c += d.publisher.replace(/ /g, "-");
+                console.log(c);
                 return c;
             })
             .attr('y', d => yScale(yValue(d)))
@@ -317,11 +357,21 @@ function renderPublisher(data) {
                 d3.select(this)
                     .style("opacity", "1.0");
 
-                var c = this.getAttribute("class");
-                c = c.substring(c.indexOf(" ") + 1);
-                console.log(c);
-
-                d3.selectAll(".arc." + c + " path")
+                var c = this.getAttribute("class").replace("rect ", "");
+                var platform = c.substring(0, c.indexOf(" "));
+                var temp = c.substring(c.indexOf(" ") + 1);
+                var genre = temp.substring(0, temp.indexOf(" "));
+                var publisher = temp.substring(temp.indexOf(" ") + 1);
+                
+                
+                console.log(platform)
+                console.log(genre)
+                console.log(publisher)
+                d3.selectAll(".arc." + platform + " path")
+                    .style("opacity", "1.0");
+                d3.selectAll(".arc." + genre + " path")
+                    .style("opacity", "1.0");
+                d3.selectAll(".arc." + publisher + " path")
                     .style("opacity", "1.0");
 
             }
@@ -331,11 +381,18 @@ function renderPublisher(data) {
                     .style("opacity", "0.5")
 
 
-                var c = this.getAttribute("class");
-                c = c.substring(c.indexOf(" ") + 1);
-                console.log(c);
-
-                d3.selectAll(".arc." + c + " path")
+               var c = this.getAttribute("class").replace("rect ", "");
+                var platform = c.substring(0, c.indexOf(" "));
+                var temp = c.substring(c.indexOf(" ") + 1);
+                var genre = temp.substring(0, temp.indexOf(" "));
+                var publisher = temp.substring(temp.indexOf(" ") + 1);
+                
+                
+                d3.selectAll(".arc." + platform + " path")
+                    .style("opacity", "0.5");
+                d3.selectAll(".arc." + genre + " path")
+                    .style("opacity", "0.5");
+                d3.selectAll(".arc." + publisher + " path")
                     .style("opacity", "0.5");
             }
 
@@ -345,7 +402,7 @@ function renderPublisher(data) {
    
     fetch("../static/data.json")
         .then(file => file.json())
-        .then(data => render(data.slice(0, 10000)));
+        .then(data => render(data.slice(0, 20)));
 
 
 
