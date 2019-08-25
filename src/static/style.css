@@ -69,5 +69,104 @@ line {
     font-size: 20px;
 }
 
+.dropdown-button {
+    height: 30px;
+    width: 300px;
+    background-color: grey;
+    padding-left: 15px;
+    border-radius: 5px;
+}
+
+#filter {
+    margin: 30px 20px 30px 30px;
+    display: inline-block;
+
+}
+
+.drop {
+    float: right;
+    width:30px;
+    padding-left: 10px;
+}
+
+.fas.fa-caret-down {
+    font-size: 15px;
+    color: black;
+}
+
+.options {
+    display: none;
+    background-color: black;
+    padding: 10px 0px 5px 20px;
+    overflow-y: auto;
+}
+
+
+
+/*stuff for checkboxes */
+.container {
+  display: inline-block;
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  font-size: 18px;
+  color: white;
+}
+
+/* Hide the browser's default checkbox */
+
+.container input {
+
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  margin-top: 5px;
+  left: 0;
+  height: 15px;
+  width: 15px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a green background */
+.container input:checked ~ .checkmark {
+  background-color: #00C851;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.container input:checked{
+	text-decoration: line-through;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 3px;
+  height: 7px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
 
 

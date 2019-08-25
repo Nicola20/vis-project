@@ -10,10 +10,9 @@
     <!-- for icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/multiple-select/1.2.2/multiple-select.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/multiple-select/1.2.2/multiple-select.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -30,23 +29,52 @@
         <div id="header">
             <span><strong>FILTER</strong></span>
         </div>
+        <div id="filter">
         <div>
-            <!--
-            <form>
-                <select id="categorySelect" class="multiSelect" multiple="multiple">
-                    <option value="1">Flood</option>
-                    <option value="2">Hurricane</option>
-                    <option value="3">Manmade</option>
-                    <option value="4">Earthquake</option>
-                    <option value="5">Fire</option>
-                </select>
-            </form>-->
+            <div class="dropdown-button" id="genre">
+                <span>genre</span>
+                <div class="drop"><i class="fas fa-caret-down"></i></div>
+            </div>
+            <div class="options">
+                <label class="container"><span>Sports</span>
+                    <input type="checkbox" name="task">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="container"><span>blab</span>
+                    <input type="checkbox" name="task">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="container"><span>blub</span>
+                    <input class="check" id="MyBox" type="checkbox" name="task" value="shub" checked="true">
+                    <span class="checkmark"></span>
+                </label>
+            </div>
         </div>
+        </div>
+    </div>
     </div>
 
 
 
 <script type="module">
+
+    $('.container').click(test);
+
+    function test(e) {
+        console.log("test");
+        var boool = $(e.target).children('.check').checked;
+         console.log(boool);
+        var input = $(e.target).children('.check').value;
+        console.log(input);
+        if($(e.target).children('.check').checked){
+        console.log("ju");
+        }
+        document.getElementsByClassName(".container").addEventListener("click", test);;
+
+    }
+
+
+
 
     $('.tabhandle').click(function(e) {
         var filter = $('#filter-container');
@@ -59,6 +87,15 @@
         }
 
         });
+
+    $('.drop').click(function(e) {
+        var drop = $('.options');
+        if(drop.css("display") == "none") {
+            drop.css("display", "block");
+        } else {
+            drop.css("display", "none");
+        }
+    });
 
     const xAxisLabelText = 'Global Sales';
 
@@ -304,12 +341,7 @@
         .then(file => file.json())
         .then(data => render(data.slice(0, 50)));
 
-
-
-
 </script>
-
-
 </body>
 
 </html>
