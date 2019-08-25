@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -37,15 +37,15 @@
             </div>
             <div class="options">
                 <label class="container"><span>Sports</span>
-                    <input type="checkbox" name="task">
+                    <input  onclick="test(event)" type="checkbox" id="MyBox1" name="task">
                     <span class="checkmark"></span>
                 </label>
                 <label class="container"><span>blab</span>
-                    <input type="checkbox" name="task">
+                    <input  onclick="test(event)" type="checkbox" id="MyBox2" name="task">
                     <span class="checkmark"></span>
                 </label>
                 <label class="container"><span>blub</span>
-                    <input class="check" id="MyBox" type="checkbox" name="task" value="shub" checked="true">
+                    <input onclick="test(event)" class="check" id="MyBox3" type="checkbox" name="task" value="shub">
                     <span class="checkmark"></span>
                 </label>
             </div>
@@ -55,25 +55,38 @@
     </div>
 
 
+<script>
 
-<script type="module">
-
-    $('.container').click(test);
-
+    //$('.container').click(test);
+/*
     function test(e) {
         console.log("test");
-        var boool = $(e.target).children('.check').checked;
-         console.log(boool);
+        $(e.target).children('span').css("color", "blue");
+
+
+        console.log("class: " + $(e.target).attr("class"));
+        var boool = $(e.target).attr("checked");
+         console.log("bool: " + boool);
         var input = $(e.target).children('.check').value;
-        console.log(input);
+        console.log("input " + input);
         if($(e.target).children('.check').checked){
         console.log("ju");
         }
-        document.getElementsByClassName(".container").addEventListener("click", test);;
+        //document.getElementsByClassName(".container").addEventListener("click", test);
 
+    }*/
+
+    function test(e) {
+        $(e.target).parent().css("color", "red");
+
+        console.log("Hello1 " + e.target.getAttribute("id"));
+        console.log("Hello1.1 " + e.target.getAttribute("class"));
+        console.log("Hello2 " + e.target.getAttribute("name"));
+
+        if(e.target.checked == true) {
+            console.log("True");
+        }
     }
-
-
 
 
     $('.tabhandle').click(function(e) {
