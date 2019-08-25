@@ -83,10 +83,36 @@ line {
 
 }
 
+#range {
+    padding-top: 50px;
+}
+
+.ui-slider-range {
+    background-color: blue;
+}
+
+#slider-range {
+    background-color: orange;
+}
+
+.range-value {
+    background-color: green;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    color: white;
+}
+
+#max {
+    float: right;
+    margin-top: 0px;
+}
+
 .drop {
     float: right;
     width:30px;
     padding-left: 10px;
+    cursor: pointer;
 }
 
 .fas.fa-caret-down {
@@ -99,6 +125,7 @@ line {
     background-color: black;
     padding: 10px 0px 5px 20px;
     overflow-y: auto;
+    width: 300px;
 }
 
 
@@ -118,6 +145,7 @@ line {
 .container input {
 
 }
+
 
 /* Create a custom checkbox */
 .checkmark {

@@ -7,14 +7,18 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <!-- for icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='data.json') }}"></script>
 
 </head>
 <body>
@@ -37,17 +41,24 @@
             </div>
             <div class="options">
                 <label class="container"><span>Sports</span>
-                    <input  onclick="test(event)" type="checkbox" id="MyBox1" name="task">
+                    <input  onclick="test(event)" type="checkbox" id="MyBox1" value="Sports">
                     <span class="checkmark"></span>
                 </label>
                 <label class="container"><span>blab</span>
-                    <input  onclick="test(event)" type="checkbox" id="MyBox2" name="task">
+                    <input  onclick="test(event)" type="checkbox" id="MyBox2">
                     <span class="checkmark"></span>
                 </label>
                 <label class="container"><span>blub</span>
-                    <input onclick="test(event)" class="check" id="MyBox3" type="checkbox" name="task" value="shub">
+                    <input onclick="test(event)" class="check" id="MyBox3" type="checkbox" value="shub">
                     <span class="checkmark"></span>
                 </label>
+            </div>
+            <div id="range">
+                <div>
+                    <div class="range-value" id="min"></div>
+                    <div class="range-value" id="max"></div>
+                </div>
+                <div id="slider-range"></div>
             </div>
         </div>
         </div>
@@ -56,25 +67,6 @@
 
 
 <script>
-
-    //$('.container').click(test);
-/*
-    function test(e) {
-        console.log("test");
-        $(e.target).children('span').css("color", "blue");
-
-
-        console.log("class: " + $(e.target).attr("class"));
-        var boool = $(e.target).attr("checked");
-         console.log("bool: " + boool);
-        var input = $(e.target).children('.check').value;
-        console.log("input " + input);
-        if($(e.target).children('.check').checked){
-        console.log("ju");
-        }
-        //document.getElementsByClassName(".container").addEventListener("click", test);
-
-    }*/
 
     function test(e) {
         $(e.target).parent().css("color", "red");
@@ -87,6 +79,26 @@
             console.log("True");
         }
     }
+
+      $( function() {
+    $( "#slider-range" ).slider({
+      range: true,
+      min: 0,
+      max: 500,
+      values: [ 0, 500 ],
+      slide: function( event, ui ) {
+        //$( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
+        $("#min").text(ui.values[0]);
+        $("#max").text(ui.values[1]);
+      },
+      stop: function (event, ui) {
+        console.log("I stopped at the value " + ui.values[0] + ", " + ui.values[1]); //works
+      }
+    });
+
+    $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
+    $( "#max" ).text($( "#slider-range" ).slider( "values", 1 ));
+  } );
 
 
     $('.tabhandle').click(function(e) {
@@ -104,7 +116,7 @@
     $('.drop').click(function(e) {
         var drop = $('.options');
         if(drop.css("display") == "none") {
-            drop.css("display", "block");
+            drop.css("display", "inline-block");
         } else {
             drop.css("display", "none");
         }
@@ -123,8 +135,6 @@
         const width = 800;
         const height = Object.keys(data).length * 30;
         data = data;
-
-        //console.log("sizing= " + height + ", " + width);
 
         xValue = d => d.global_sales;
         yValue = d => d.name;
@@ -349,10 +359,17 @@
             .attr("stop-color", "#fc6262");
     }
 
+    $.getJSON("../static/data.json", function( data ) {
+        data = data;
+        //console.log(JSON.stringify(data)); //json output
+    });
+
+
    
     fetch("../static/data.json")
         .then(file => file.json())
         .then(data => render(data.slice(0, 50)));
+
 
 </script>
 </body>
