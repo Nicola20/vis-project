@@ -8,5 +8,22 @@ body {
 
 
 .piechart-container {
-	float: right;
+	
+}
+
+.test {
+	display: block;
+}
+
+
+#platform-container {
+	
+}
+
+#genre-container {
+	
+}
+
+#publisher-container {
+	
 }

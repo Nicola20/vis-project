@@ -5,7 +5,7 @@
     <title>Videogame Sunburst</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"></link>
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='interaction.js') }}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
 
 </head>
@@ -21,9 +21,15 @@
 
 
     <div class="pie-chart-container">
-        <div id="platform-container"></div>
-        <div id="genre-container"></div>
-        <div id="publisher-container"></div>
+        
+        <form>
+            <button type="button" id="toggle-sales"></button>
+        </form>
+        <div class="test">
+            <div id="platform-container"></div>
+            <div id="genre-container"></div>
+            <div id="publisher-container"></div>
+        </div>
     </div>
 </div>
 
@@ -31,16 +37,56 @@
 
 <script type="text/javascript">
 
+
+// -------------------------------------------------------------------------
+// LOAD DATA
+// -------------------------------------------------------------------------
+
+    var data = [];
+
+    $.ajax({
+        url: '../static/data.json',
+        async: false,
+        dataType: 'json',
+        success: function (json) {
+            data = json;
+        }
+    });
+
+    data = data.slice(0, 100);
+            
+
+
+
+
+
 // -------------------------------------------------------------------------
 // CONSTANTS
 // -------------------------------------------------------------------------
 
 
-    const size = 400
-    const radius = size / 2;
+    const size = 800 
+    const radius = (size / 2) - 200;
 
     var scaleBySales = false;
     const kindOfSales = "global_sales";
+
+
+// -------------------------------------------------------------------------
+// BUTTONS
+// -------------------------------------------------------------------------
+
+    var toggleSalesButton = document.getElementById("toggle-sales");
+    toggleSalesButton.addEventListener("click", toggle);
+
+    function toggle() {
+        if (scaleBySales) {
+            scaleBySales = false;
+        } else {
+            scaleBySales = true;
+        }
+        render(data);
+    }
 
 
 // -------------------------------------------------------------------------
@@ -85,7 +131,7 @@
 
     function getClassForPie(d) {
         var c = "arc ";
-        c += d.data.key;
+        c += d.data.key.replace(/ /g, "-");
         return c;
     }
 
@@ -96,28 +142,37 @@
 
 
     function mouseoverPie(d) {
+        //change opacity of pie
         d3.select(this)
             .style("opacity", "1.0");
-
+        //change color of bar
         var c = this.parentElement.getAttribute("class");
         c = c.substring(c.indexOf(" ") + 1);
         d3.selectAll(".rect." + c)
-            .style("opacity", "1.0");
+            .attr("fill", "red");
+        //show info in middle of pie
+        d3.selectAll(".info." + d.data.key.replace(/ /g, "-"))
+        .style("opacity", "1.0");
     }
 
 
     function mouseoutPie(d) {
+        //change opacity of pie
         d3.select(this)
             .style("opacity", "0.5")
-
+        //change color of bar
         var c = this.parentElement.getAttribute("class");
         c = c.substring(c.indexOf(" ") + 1);
         d3.selectAll(".rect." + c)
-            .style("opacity", "0.5");
+            .attr("fill", "black");
+        //hide info in middle of pie
+        d3.selectAll(".info." + d.data.key.replace(/ /g, "-"))
+            .style("opacity", "0.0");
     }
 
     function onclickPie(d) {
-        console.log("test");
+        console.log("click");
+        d.select(this).addEventListener("click", onclickPie);
     }
 
 
@@ -125,30 +180,13 @@
     // RENDERING
     // ---------------------------------------------------------------------
 
-
-    function renderPie(data, feature, color, scaleBySales, kindOfSales) {
-        d3.select("#"  + feature + "-container")
-            .append("svg")
-            .attr("id", feature)
-            .attr("width", size)
-            .attr("height", size);
-
-        const svg = d3.select("#" + feature);
-
-        const featureData = getFeatureDataForPie(data, feature, scaleBySales, kindOfSales);
-
-        var arc = d3.arc()
-            .innerRadius(radius - 130)
-            .outerRadius(radius);
-
-        var pie = d3.pie()
-            .value(d => d.value);
+    function renderArcs(svg, pie, featureData, arc, color) {
 
         var g = svg.selectAll(".arc")
             .data(pie(featureData))
             .enter()
             .append("g")
-            .attr("transform", "translate(" + radius + "," + radius + ")")
+            .attr("transform", "translate(" + (size / 2) + "," + (size / 2) + ")")
             .attr("class", getClassForPie);
 
         g.append("path")
@@ -159,16 +197,132 @@
             .on("mouseover", mouseoverPie)
             .on("mouseout", mouseoutPie)
             .on("click", onclickPie);
+    }
 
-        g.exit().remove();
+
+    function renderLabels(svg, pie, featureData) {
+        var textArc = d3.arc()
+            .innerRadius(radius * 1.45)
+            .outerRadius(radius * 1.45);
+
+        svg.selectAll(".label")
+            .data(pie(featureData))
+            .enter()
+            .append("text")
+            .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+            .attr("dy", ".35em")
+            .attr("class", "label")
+            .attr("fill", "white")
+            .attr('transform', function(d) {
+                var pos = textArc.centroid(d);
+                console.log(pos)
+                var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+                pos[0] += (size / 2);
+                pos[1] += (size / 2);
+                return 'translate(' + pos + ')';
+            })
+            .style('text-anchor', function(d) {
+                var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+                return (midangle < Math.PI ? 'start' : 'end')
+            })
+            .text(d => {
+                if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
+                    return d.data.key;
+                }
+            });
+
+    }
+
+
+    function renderLines(svg, pie, featureData, arc) {
+        var textArc = d3.arc()
+            .innerRadius(radius * 1.4)
+            .outerRadius(radius * 1.4);
+
+        svg.selectAll(".line")
+            .data(pie(featureData))
+            .enter()
+            .append("polyline")
+            .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+            .attr("stroke", "white")
+            .style("fill", "none")
+            .attr("stroke-width", "2")
+            .attr("points", d => {
+                if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
+                    var posA = arc.centroid(d);
+                    var posB = textArc.centroid(d);
+          
+                    return [posA, posB];
+                }
+            });
+    }
+
+
+    function renderInfo(svg, pie, featureData) {
+         svg.selectAll(".info.key")
+            .data(pie(featureData))
+            .enter()
+            .append("text")
+            .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+            .attr("dy", "-1.5%")
+            .attr("class", d => {
+                return "info key " + d.data.key.replace(/ /g, "-")
+            })
+            .attr("fill", "white")
+            .style("opacity", "0.0")
+            .style("text-anchor", "middle")
+            .text(d => d.data.key);
+
+        var format = d3.format(".1f");
+
+        svg.selectAll(".info.percent")
+            .data(pie(featureData))
+            .enter()
+            .append("text")
+            .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+            .attr("dy", "1.5%")
+            .attr("class", d => {
+                console.log(d);
+                return "info percent " + d.data.key.replace(/ /g, "-")
+            })
+            .attr("fill", "white")
+            .style("opacity", "0.0")
+            .style("text-anchor", "middle")
+            .text(d => format((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + " %");
+    }
+
+
+    function renderPieChart(data, feature, color, scaleBySales, kindOfSales) {
+        d3.select("#"  + feature).remove();
+        d3.select("#"  + feature + "-container")
+            .append("svg")
+            .attr("id", feature)
+            .attr("width", size)
+            .attr("height", size);
+
+
+        const svg = d3.select("#" + feature);
+
+        var pie = d3.pie()
+            .value(d => d.value);
+
+        var arc = d3.arc()
+            .innerRadius(radius - 100)
+            .outerRadius(radius);
+
+        const featureData = getFeatureDataForPie(data, feature, scaleBySales, kindOfSales);
+
+        renderArcs(svg, pie, featureData, arc, color);
+        renderLabels(svg, pie, featureData);
+        renderLines(svg, pie, featureData, arc);
+        renderInfo(svg, pie, featureData);
     }
 
 
     function renderPies(data) {
-
-        renderPie(data, "platform", "blue", scaleBySales, kindOfSales);
-        renderPie(data, "genre", "yellow", scaleBySales, kindOfSales);
-        renderPie(data, "publisher", "red", scaleBySales, kindOfSales);
+        renderPieChart(data, "platform", "blue", scaleBySales, kindOfSales);
+        renderPieChart(data, "genre", "yellow", scaleBySales, kindOfSales);
+        renderPieChart(data, "publisher", "red", scaleBySales, kindOfSales);
     }
 
 
@@ -184,9 +338,9 @@
 
     function getClassForBar(d) {
         var c = "rect ";
-        c += d.platform;
+        c += d.platform.replace(/ /g, "-");
         c += " ";
-        c += d.genre;
+        c += d.genre.replace(/ /g, "-");
         c += " ";
         c += d.publisher.replace(/ /g, "-");
         return c;
@@ -210,7 +364,7 @@
 
     function mouseoverBar(d) {
         d3.select(this)
-            .style("opacity", "1.0");
+            .attr("fill", "red");
 
         var selectionOnPie = getSelectionOnPie(this);
                 
@@ -225,7 +379,7 @@
 
     function mouseoutBar(d) {
         d3.select(this)
-            .style("opacity", "0.5")
+            .attr("fill", "black");
 
         var selectionOnPie = getSelectionOnPie(this);
                 
@@ -303,7 +457,7 @@
             .attr('y', d => yScale(yValue(d)))
             .attr('width', d => xScale(xValue(d)))
             .attr('height', yScale.bandwidth())
-            .style("opacity", "0.5")
+            .style("opacity", "1.0")
             .on("mouseover", mouseoverBar)
             .on("mouseout", mouseoutBar);
 
@@ -316,15 +470,15 @@
 // 
 // -------------------------------------------------------------------------
     function render(data) {
+        console.log("called render")
+        console.log(scaleBySales)
         renderBar(data);
         renderPies(data);
       }
         
    
-    fetch("../static/data.json")
-        .then(file => file.json())
-        .then(data => render(data.slice(0, 10)));
 
+render(data);
 
 
 
