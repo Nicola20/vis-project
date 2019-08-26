@@ -146,9 +146,7 @@
         d3.select(this)
             .style("opacity", "1.0");
         //change color of bar
-        var c = this.parentElement.getAttribute("class");
-        c = c.substring(c.indexOf(" ") + 1);
-        d3.selectAll(".rect." + c)
+        d3.selectAll(".rect." + this.parentElement.classList[1])
             .attr("fill", "red");
         //show info in middle of pie
         d3.selectAll(".info." + d.data.key.replace(/ /g, "-"))
@@ -161,9 +159,7 @@
         d3.select(this)
             .style("opacity", "0.5")
         //change color of bar
-        var c = this.parentElement.getAttribute("class");
-        c = c.substring(c.indexOf(" ") + 1);
-        d3.selectAll(".rect." + c)
+        d3.selectAll(".rect." + this.parentElement.classList[1])
             .attr("fill", "black");
         //hide info in middle of pie
         d3.selectAll(".info." + d.data.key.replace(/ /g, "-"))
@@ -171,7 +167,6 @@
     }
 
     function onclickPie(d) {
-        console.log("click");
         d.select(this).addEventListener("click", onclickPie);
     }
 
@@ -215,7 +210,6 @@
             .attr("fill", "white")
             .attr('transform', function(d) {
                 var pos = textArc.centroid(d);
-                console.log(pos)
                 var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
                 pos[0] += (size / 2);
                 pos[1] += (size / 2);
@@ -282,7 +276,6 @@
             .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
             .attr("dy", "1.5%")
             .attr("class", d => {
-                console.log(d);
                 return "info percent " + d.data.key.replace(/ /g, "-")
             })
             .attr("fill", "white")
@@ -338,22 +331,10 @@
 
     function getClassForBar(d) {
         var c = "rect ";
-        c += d.platform.replace(/ /g, "-");
-        c += " ";
-        c += d.genre.replace(/ /g, "-");
-        c += " ";
+        c += d.platform.replace(/ /g, "-") + " ";
+        c += d.genre.replace(/ /g, "-") + " ";
         c += d.publisher.replace(/ /g, "-");
         return c;
-    }
-
-
-    function getSelectionOnPie(object) {
-        var c = object.getAttribute("class").replace("rect ", "");
-        var platform = c.substring(0, c.indexOf(" "));
-        var temp = c.substring(c.indexOf(" ") + 1);
-        var genre = temp.substring(0, temp.indexOf(" "));
-        var publisher = temp.substring(temp.indexOf(" ") + 1);
-        return {"platform" : platform, "genre" : genre, "publisher" : publisher};
     }
 
 
@@ -366,13 +347,11 @@
         d3.select(this)
             .attr("fill", "red");
 
-        var selectionOnPie = getSelectionOnPie(this);
-                
-        d3.selectAll(".arc." + selectionOnPie.platform + " path")
+        d3.selectAll(".arc." + this.classList[1] + " path")
             .style("opacity", "1.0");
-        d3.selectAll(".arc." + selectionOnPie.genre + " path")
+        d3.selectAll(".arc." + this.classList[2] + " path")
             .style("opacity", "1.0");
-        d3.selectAll(".arc." + selectionOnPie.publisher + " path")
+        d3.selectAll(".arc." + this.classList[3] + " path")
             .style("opacity", "1.0");
     }
 
@@ -380,14 +359,12 @@
     function mouseoutBar(d) {
         d3.select(this)
             .attr("fill", "black");
-
-        var selectionOnPie = getSelectionOnPie(this);
                 
-        d3.selectAll(".arc." + selectionOnPie.platform + " path")
+        d3.selectAll(".arc." + this.classList[1] + " path")
             .style("opacity", "0.5");
-        d3.selectAll(".arc." + selectionOnPie.genre + " path")
+        d3.selectAll(".arc." + this.classList[2] + " path")
             .style("opacity", "0.5");
-        d3.selectAll(".arc." + selectionOnPie.publisher + " path")
+        d3.selectAll(".arc." + this.classList[3] + " path")
             .style("opacity", "0.5");
     }
 
@@ -470,8 +447,6 @@
 // 
 // -------------------------------------------------------------------------
     function render(data) {
-        console.log("called render")
-        console.log(scaleBySales)
         renderBar(data);
         renderPies(data);
       }
