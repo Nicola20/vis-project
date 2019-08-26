@@ -18,8 +18,6 @@
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
 
-    <script type="text/javascript" src="{{ url_for('static', filename='data.json') }}"></script>
-
 </head>
 <body>
 
@@ -40,18 +38,7 @@
                 <div class="drop"><i class="fas fa-caret-down"></i></div>
             </div>
             <div class="options">
-                <label class="container"><span>Sports</span>
-                    <input  onclick="test(event)" type="checkbox" id="MyBox1" value="Sports">
-                    <span class="checkmark"></span>
-                </label>
-                <label class="container"><span>blab</span>
-                    <input  onclick="test(event)" type="checkbox" id="MyBox2">
-                    <span class="checkmark"></span>
-                </label>
-                <label class="container"><span>blub</span>
-                    <input onclick="test(event)" class="check" id="MyBox3" type="checkbox" value="shub">
-                    <span class="checkmark"></span>
-                </label>
+
             </div>
             <div id="range">
                 <div>
@@ -68,6 +55,19 @@
 
 <script>
 
+
+    var data = [];
+    $.ajax({
+        url: '../static/data.json',
+        async: false,
+        dataType: 'json',
+        success: function (json) {
+            data = json;
+            //console.log(JSON.stringify(data));
+        }
+    });
+    data = data.slice(0, 100);
+
     function test(e) {
         $(e.target).parent().css("color", "red");
 
@@ -80,7 +80,24 @@
         }
     }
 
-      $( function() {
+    function generateOptions(data, category) {
+        var genres = [];
+        console.log("category: " + category);
+        for(var i = 0; i < data.length; i++) {
+            if (!genres.includes(data[i].genre.toString()))
+                genres.push(data[i].genre.toString());
+        }
+        console.log(genres);
+        for (var k = 0; k < genres.length; k++) {
+            var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='test(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "'><span class='checkmark'></span></label>";
+            $('.options').append(html);
+            console.log("values: " + genres[k] + ", " + k.toString());
+        }
+    }
+
+    generateOptions(data, "genre");
+
+    $( function() {
     $( "#slider-range" ).slider({
       range: true,
       min: 0,
@@ -113,10 +130,10 @@
 
         });
 
-    $('.drop').click(function(e) {
+    $('.dropdown-button').click(function(e) {
         var drop = $('.options');
         if(drop.css("display") == "none") {
-            drop.css("display", "inline-block");
+            drop.css("display", "block");
         } else {
             drop.css("display", "none");
         }
@@ -129,7 +146,7 @@
     var xScale;
     var yScale;
     var g;
-    var data;
+    //var data;
     
     function render(data) {
         const width = 800;
