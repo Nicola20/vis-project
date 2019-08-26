@@ -68,30 +68,52 @@
     });
     data = data.slice(0, 100);
 
+    var filterQuery = { genre: []};
+
     function test(e) {
         $(e.target).parent().css("color", "red");
 
-        console.log("Hello1 " + e.target.getAttribute("id"));
-        console.log("Hello1.1 " + e.target.getAttribute("class"));
-        console.log("Hello2 " + e.target.getAttribute("name"));
+        filterCheckbox(e);
 
-        if(e.target.checked == true) {
-            console.log("True");
-        }
     }
+
+    function filterCheckbox(e) {
+        if(e.target.checked == true) { //works
+            console.log("True");
+            filterQuery.genre.push(e.target.value);
+            console.log(filterQuery);
+            //console.log("greetings " + (typeof e.target.value).toString());
+            //var filtered = data.filter(d => d.genre == e.target.value);
+
+            var filtered = data.filter(function(obj) {
+                return Object.keys(filterQuery).every( function(key) {
+                    return (Array.isArray(filterQuery[key]) && (filterQuery[key].some( function(criteria) {
+                        console.log("greetings " + (typeof obj[key]).toString());
+                        console.log("object: " + obj[key].toString() + ", " + JSON.stringify(obj));
+                        return (typeof obj[key] === 'object' && obj[key].indexOf(criteria) !== -1) //maybe change here type to string if other data is used
+                         })) || filterQuery[key].length === 0);
+                    });
+                });
+
+            console.log(filtered);
+            d3.select('#barsvg').remove();
+            render(filtered);
+
+        } //if curly
+    }
+
 
     function generateOptions(data, category) {
         var genres = [];
-        console.log("category: " + category);
         for(var i = 0; i < data.length; i++) {
-            if (!genres.includes(data[i].genre.toString()))
-                genres.push(data[i].genre.toString());
+            if (!genres.includes(data[i][category].toString()))
+                genres.push(data[i][category].toString());
         }
         console.log(genres);
         for (var k = 0; k < genres.length; k++) {
             var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='test(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "'><span class='checkmark'></span></label>";
             $('.options').append(html);
-            console.log("values: " + genres[k] + ", " + k.toString());
+            //console.log("values: " + genres[k] + ", " + k.toString());
         }
     }
 
