@@ -2,20 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Videogame Sunburst</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"></link>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+    <title>Videogame Visualisation</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- for icons -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
 <body>
 
-
-<div class="container">
-    <div class="barchart-container">
-        <svg id="barchart" width="600" height="1300"></svg>
+    <div class="tabhandle">
+        <i class="fas fa-filter" style="font-size: 28px; color: white; transform: translateX(80%) translateY(40%);"></i>
     </div>
+
+
+    <div id="barchart"></div>
+
+
+    <div id="filter-container">
+        <div id="header">
+            <span><strong>FILTER</strong></span>
+        </div>
+        <div id="filter">
+        <div>
+            <div class="dropdown-button">
+                <span>genre</span>
+                <div class="drop"><i class="fas fa-caret-down"></i></div>
+            </div>
+            <div class="options">
+
+            </div>
+            <div id="range">
+                <div>
+                    <div class="range-value" id="min"></div>
+                    <div class="range-value" id="max"></div>
+                </div>
+                <div id="slider-range"></div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+
 
 
 
@@ -25,13 +62,13 @@
         <form>
             <button type="button" id="toggle-sales"></button>
         </form>
-        <div class="test">
-            <div id="platform-container"></div>
-            <div id="genre-container"></div>
-            <div id="publisher-container"></div>
-        </div>
+        
+        <div id="platform-container"></div>
+        <div id="genre-container"></div>
+        <div id="publisher-container"></div>
+        
     </div>
-</div>
+
 
 
 
@@ -53,11 +90,98 @@
         }
     });
 
-    data = data.slice(0, 100);
+    data = data.slice(0, 50);
+    console.log(data);
             
+// -------------------------------------------------------------------------
+// FILTER
+// -------------------------------------------------------------------------
+
+    var filterQuery = { genre: []};
 
 
+    function test(e) {
+        $(e.target).parent().css("color", "red");
+        filterCheckbox(e);
+    }
 
+
+    function filterCheckbox(e) {
+        if(e.target.checked == true) { //works
+            filterQuery.genre.push(e.target.value);
+            console.log("greetings " + e.target.value);
+            //var filtered = data.filter(d => d.genre == e.target.value);
+            var filtered = data.filter(function(obj) {
+                return Object.keys(filterQuery).every( function(key) {
+                    return (Array.isArray(filterQuery[key]) && (filterQuery[key].some( function(criteria) {
+                        return (typeof obj[key] === 'string' && obj[key].indexOf(criteria) !== -1) //maybe change here type to string if other data is used
+                         })) || filterQuery[key].length === 0);
+                    });
+                });
+            d3.select('#barsvg').remove();
+            console.log(filtered);
+            render(filtered);
+        } //if curly
+    }
+
+
+    function generateOptions(data, category) {
+        var genres = [];
+        for(var i = 0; i < data.length; i++) {
+            if (!genres.includes(data[i][category].toString()))
+                genres.push(data[i][category].toString());
+        }
+        console.log(genres);
+        for (var k = 0; k < genres.length; k++) {
+            var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='test(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "'><span class='checkmark'></span></label>";
+            $('.options').append(html);
+            //console.log("values: " + genres[k] + ", " + k.toString());
+        }
+    }
+
+
+    generateOptions(data, "genre");
+
+    $( function() {
+        $( "#slider-range" ).slider({
+            range: true,
+            min: 0,
+            max: 500,
+            values: [ 0, 500 ],
+            slide: function( event, ui ) {
+                    //$( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
+                $("#min").text(ui.values[0]);
+                $("#max").text(ui.values[1]);
+            },
+            stop: function (event, ui) {
+            console.log("I stopped at the value " + ui.values[0] + ", " + ui.values[1]); //works
+          }
+        });
+        $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
+        $( "#max" ).text($( "#slider-range" ).slider( "values", 1 ));
+    });
+
+
+    $('.tabhandle').click(function(e) {
+        var filter = $('#filter-container');
+        if(filter.css("display") == "none") {
+            filter.css("display", "inline-block");
+            $(this).css("margin-left", "calc(25% - 10px)");
+        } else {
+            filter.css("display", "none");
+            $(this).css("margin-left", "-10px");
+        }
+        });
+
+
+    $('.dropdown-button').click(function(e) {
+        var drop = $('.options');
+        if(drop.css("display") == "none") {
+            drop.css("display", "block");
+        } else {
+            drop.css("display", "none");
+        }
+    });
 
 
 // -------------------------------------------------------------------------
@@ -131,7 +255,7 @@
 
     function getClassForPie(d) {
         var c = "arc ";
-        c += d.data.key.replace(/ /g, "-");
+        c += d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--");
         return c;
     }
 
@@ -146,10 +270,11 @@
         d3.select(this)
             .style("opacity", "1.0");
         //change color of bar
+        console.log(d3.selectAll(".rect." + this.parentElement.classList[1]));
         d3.selectAll(".rect." + this.parentElement.classList[1])
             .attr("fill", "red");
         //show info in middle of pie
-        d3.selectAll(".info." + d.data.key.replace(/ /g, "-"))
+        d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
         .style("opacity", "1.0");
     }
 
@@ -160,14 +285,10 @@
             .style("opacity", "0.5")
         //change color of bar
         d3.selectAll(".rect." + this.parentElement.classList[1])
-            .attr("fill", "black");
+            .attr("fill", "#7283a7");
         //hide info in middle of pie
-        d3.selectAll(".info." + d.data.key.replace(/ /g, "-"))
+        d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
             .style("opacity", "0.0");
-    }
-
-    function onclickPie(d) {
-        d.select(this).addEventListener("click", onclickPie);
     }
 
 
@@ -190,8 +311,7 @@
             .style("stroke", "black")
             .style("opacity", "0.5")
             .on("mouseover", mouseoverPie)
-            .on("mouseout", mouseoutPie)
-            .on("click", onclickPie);
+            .on("mouseout", mouseoutPie);
     }
 
 
@@ -208,6 +328,8 @@
             .attr("dy", ".35em")
             .attr("class", "label")
             .attr("fill", "white")
+            .style("font-weight", "bold")
+            .style("font-family", "'Arial Black','Courier New',Verdana")
             .attr('transform', function(d) {
                 var pos = textArc.centroid(d);
                 var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
@@ -258,13 +380,21 @@
             .enter()
             .append("text")
             .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
-            .attr("dy", "-1.5%")
+            .attr("dy", d => {
+                if (scaleBySales) {
+                    return "-3.0%";
+                } else {
+                    return "-1.5%";
+                }
+            })
             .attr("class", d => {
-                return "info key " + d.data.key.replace(/ /g, "-")
+                return "info key " + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
             .attr("fill", "white")
             .style("opacity", "0.0")
             .style("text-anchor", "middle")
+            .style("font-weight", "bold")
+            .style("font-family", "'Arial Black','Courier New',Verdana")
             .text(d => d.data.key);
 
         var format = d3.format(".1f");
@@ -274,14 +404,38 @@
             .enter()
             .append("text")
             .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
-            .attr("dy", "1.5%")
+            .attr("dy", d => {
+                if (scaleBySales) {
+                    return "0.0%";
+                } else {
+                    return "1.5%";
+                }
+            })
             .attr("class", d => {
-                return "info percent " + d.data.key.replace(/ /g, "-")
+                return "info percent " + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
             .attr("fill", "white")
             .style("opacity", "0.0")
             .style("text-anchor", "middle")
+            .style("font-family", "'Arial Black','Courier New',Verdana")
             .text(d => format((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + " %");
+
+        if (scaleBySales) {
+            svg.selectAll(".info.sales")
+                .data(pie(featureData))
+                .enter()
+                .append("text")
+                .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+                .attr("dy", "3.0%")
+                .attr("class", d => {
+                    return "info sales " + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
+                })
+                .attr("fill", "white")
+                .style("opacity", "0.0")
+                .style("text-anchor", "middle")
+                .style("font-family", "'Arial Black','Courier New',Verdana")
+                .text(d => d.data.value / 1000000 + " M");
+        }
     }
 
 
@@ -331,9 +485,9 @@
 
     function getClassForBar(d) {
         var c = "rect ";
-        c += d.platform.replace(/ /g, "-") + " ";
-        c += d.genre.replace(/ /g, "-") + " ";
-        c += d.publisher.replace(/ /g, "-");
+        c += d.platform.replace(/ /g, "-").replace(/^[0-9]/,"--") + " ";
+        c += d.genre.replace(/ /g, "-").replace(/^[0-9]/,"--") + " ";
+        c += d.publisher.replace(/ /g, "-").replace(/^[0-9]/,"--");
         return c;
     }
 
@@ -344,9 +498,31 @@
 
 
     function mouseoverBar(d) {
-        d3.select(this)
-            .attr("fill", "red");
+        //change color of bar
+        //d3.select(this)
+        //    .attr("fill", "red");
+        var hover = d3.select(this);
+        hover.transition()
+           .duration(200)
+           .attr('width', d => xScale(xValue(d)) + 5)
+           .attr("y", d => yScale(yValue(d)) - 2.5)
+           .attr("height", yScale.bandwidth() + 1);
+        hover.attr("fill", "red");
+        hover.style("cursor", "pointer");
+        var size = (d.global_sales / 1000000) + " M";
+        size = size.length;
 
+        g.append("text")
+            .attr("class", "salesHover")
+            .attr('x', function() {
+                return xScale(d.global_sales) + 15;
+            })
+            .attr('y', function() {
+                return yScale(d.name) + 18; //stimmt schonmal von der Höhe her
+            })
+            .text(function() { return (d.global_sales / 1000000) + "M";});
+
+        //change opacity of pie
         d3.selectAll(".arc." + this.classList[1] + " path")
             .style("opacity", "1.0");
         d3.selectAll(".arc." + this.classList[2] + " path")
@@ -357,9 +533,20 @@
 
 
     function mouseoutBar(d) {
-        d3.select(this)
-            .attr("fill", "black");
-                
+        //change color of bar
+        //d3.select(this)
+        //    .attr("fill", "black");
+        d3.selectAll('.salesHover')
+            .remove()
+        var hover = d3.select(this);
+        hover.transition()
+           .duration(200)
+           .attr('y', d => yScale(yValue(d)))
+           .attr('width', d => xScale(xValue(d)))
+           .attr('height', yScale.bandwidth() - 5)
+           .attr("fill","#7283a7");
+
+        //change opacity of pie
         d3.selectAll(".arc." + this.classList[1] + " path")
             .style("opacity", "0.5");
         d3.selectAll(".arc." + this.classList[2] + " path")
@@ -373,35 +560,45 @@
     // RENDERING
     // ---------------------------------------------------------------------
 
+    const xAxisLabelText = 'Global Sales';
+    var xValue;
+    var yValue;
+    var xScale;
+    var yScale;
+    var g;
+
 
     function renderBar(data) {
 
-        const svg = d3.select("#barchart");
-
-        const width = +svg.attr('width');
-        const height = +svg.attr('height');
-
-        const xAxisLabelText = 'Value';
-
-        const xValue = d => d.global_sales;
-        const yValue = d => d.name;
+        const width = 800;
+        const height = Object.keys(data).length * 30;
+        data = data;
+        xValue = d => d.global_sales;
+        idValue = d => d.id;
+        yValue = d => d.name;
         
-        const margin = { top: 50, right: 40, bottom: 77, left: 180 };
+        const margin = { top: 50, right: 70, bottom: 77, left: 180 + 132 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
-
-        const xScale = d3.scaleLinear()
+        xScale = d3.scaleLinear()
             .domain([0, d3.max(data, xValue)])
             .range([0, innerWidth]);
   
-        const yScale = d3.scaleBand()
+        yScale = d3.scaleBand()
             .domain(data.map(yValue))
             .range([0, innerHeight])
             .padding(0.1);
 
 
-        const g = svg.append('g')
+        var svg = d3.select('#barchart').append('svg')
+            .attr("id", "barsvg")
+            .attr("width" , width)
+            .attr("height", height)
+
+        g = svg.append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
+
+
 
         const xAxisTickFormat = number =>
             d3.format('.3s')(number)
@@ -419,26 +616,23 @@
         const xAxisG = g.append('g').call(xAxis)
             .attr('transform', `translate(0,${innerHeight})`);
   
-        xAxisG.select('.domain').remove();
+        xAxisG.select('.domain').remove(); //deletes the line of the x axis
   
         xAxisG.append('text')
             .attr('class', 'axis-label')
-            .attr('y', 65)
+            .attr('y', 35)
             .attr('x', innerWidth / 2)
-            .attr('fill', 'black')
             .text(xAxisLabelText);
       
         g.selectAll('rect').data(data)
             .enter().append('rect')
-            .attr("class", getClassForBar)
+            .on("mouseover", mouseoverBar)
+            .on("mouseleave", mouseoutBar)
             .attr('y', d => yScale(yValue(d)))
             .attr('width', d => xScale(xValue(d)))
-            .attr('height', yScale.bandwidth())
-            .style("opacity", "1.0")
-            .on("mouseover", mouseoverBar)
-            .on("mouseout", mouseoutBar);
-
-
+            .attr('height', yScale.bandwidth() - 5)
+            .attr("class", getClassForBar)
+            .attr("fill",  "#7283a7");
     }
     
 

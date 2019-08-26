@@ -1,29 +1,211 @@
 body {
-    background-color: #263238;
+   background-color: #263238;
 }
 
-.barchart-container {
-	float: left;
+#barsvg {
+    background-color: #37474F;
+}
+
+text {
+    fill: white;
+    background-color: black;
+}
+
+line {
+    stroke: #90a4ae;
+}
+
+.salesHover {
+    font-size: 13px;
+}
+
+#barchart {
+    left: 120px;
+    display: inline-block;
+    position:absolute;
 }
 
 
-.piechart-container {
-	
+.tabhandle {
+    width: 70px;
+    height: 50px;
+    /*position:fixed;*/ //element sticks to this position
+    border-style: none;
+    border-radius: 0 5px 5px 0;
+    background-color: #0288d1;
+    margin-left: -10px;
+    margin-top: 5px;
+    display: inline-block;
+    position: fixed;
+    z-index: 20;
 }
 
-.test {
-	display: block;
+.tabhandle:hover {
+    width: 75px;
+    height: 51px;
+}
+
+#filter-container {
+    background-color: white;
+    height: 800px;
+    display: none;
+    z-index: 20;
+    position: fixed;
+    width: 25%;
+    left: -8px;
+    vertical-align: top;
+}
+
+#header {
+    background-color: #0288d1;
+    height: 65px;
+    text-align: center;
+    padding-top: 14px;
+}
+
+#header span {
+    transform: translateX(50%) translateY(50%);
+    color: white;
+    font-size: 20px;
+}
+
+.dropdown-button {
+    height: 30px;
+    width: 300px;
+    background-color: grey;
+    padding-left: 15px;
+    border-radius: 5px;
+}
+
+#filter {
+    margin: 30px 20px 30px 30px;
+    display: inline-block;
+
+}
+
+#range {
+    padding-top: 50px;
+}
+
+.ui-slider-range {
+    background-color: blue;
+}
+
+#slider-range {
+    background-color: orange;
+}
+
+.range-value {
+    background-color: #eceff1;
+    width: 40px;
+    height: 30px;
+    display: inline-block;
+    border-radius: 3px;
+    border: 1px solid;
+    border-color: #90a4ae;
+    text-align: center;
+    font-size: 13px;
+}
+
+#max {
+    float: right;
+    margin-top: 0px;
+}
+
+.drop {
+    float: right;
+    width:30px;
+    padding-left: 10px;
+    cursor: pointer;
+}
+
+.fas.fa-caret-down {
+    font-size: 15px;
+    color: black;
+}
+
+.options {
+    display: none;
+    background-color: black;
+    padding: 10px 0px 5px 20px;
+    overflow: auto;
+    width: 300px;
+    height: 300px;
 }
 
 
-#platform-container {
-	
+
+/*stuff for checkboxes */
+.container {
+  display: inline-block;
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  font-size: 18px;
+  color: white;
 }
 
-#genre-container {
-	
+/* Hide the browser's default checkbox */
+
+.container input {
+    display: none;
 }
 
-#publisher-container {
-	
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  margin-top: 5px;
+  left: 0;
+  height: 15px;
+  width: 15px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a green background */
+.container input:checked ~ .checkmark {
+  background-color: #00C851;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.container input:checked{
+	text-decoration: line-through;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 3px;
+  height: 7px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+
+#toggle-sales {
+	margin-left: 200px;
+}
+
+.pie-chart-container {
+	float: right;
 }
