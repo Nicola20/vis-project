@@ -91,7 +91,6 @@
     });
 
     data = data.slice(0, 50);
-    console.log(data);
             
 // -------------------------------------------------------------------------
 // FILTER
@@ -109,7 +108,6 @@
     function filterCheckbox(e) {
         if(e.target.checked == true) { //works
             filterQuery.genre.push(e.target.value);
-            console.log("greetings " + e.target.value);
             //var filtered = data.filter(d => d.genre == e.target.value);
             var filtered = data.filter(function(obj) {
                 return Object.keys(filterQuery).every( function(key) {
@@ -119,7 +117,6 @@
                     });
                 });
             d3.select('#barsvg').remove();
-            console.log(filtered);
             render(filtered);
         } //if curly
     }
@@ -131,11 +128,9 @@
             if (!genres.includes(data[i][category].toString()))
                 genres.push(data[i][category].toString());
         }
-        console.log(genres);
         for (var k = 0; k < genres.length; k++) {
             var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='test(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "'><span class='checkmark'></span></label>";
             $('.options').append(html);
-            //console.log("values: " + genres[k] + ", " + k.toString());
         }
     }
 
@@ -270,7 +265,6 @@
         d3.select(this)
             .style("opacity", "1.0");
         //change color of bar
-        console.log(d3.selectAll(".rect." + this.parentElement.classList[1]));
         d3.selectAll(".rect." + this.parentElement.classList[1])
             .attr("fill", "red");
         //show info in middle of pie
@@ -529,6 +523,14 @@
             .style("opacity", "1.0");
         d3.selectAll(".arc." + this.classList[3] + " path")
             .style("opacity", "1.0");
+
+        //change opacity of info in pie
+        d3.selectAll(".info." + this.classList[1])
+            .style("opacity", "1.0");
+        d3.selectAll(".info." + this.classList[2])
+            .style("opacity", "1.0");
+        d3.selectAll(".info." + this.classList[3])
+            .style("opacity", "1.0");
     }
 
 
@@ -553,6 +555,14 @@
             .style("opacity", "0.5");
         d3.selectAll(".arc." + this.classList[3] + " path")
             .style("opacity", "0.5");
+
+        //change opacity of info in pie
+        d3.selectAll(".info." + this.classList[1])
+            .style("opacity", "0.0");
+        d3.selectAll(".info." + this.classList[2])
+            .style("opacity", "0.0");
+        d3.selectAll(".info." + this.classList[3])
+            .style("opacity", "0.0");
     }
 
 
@@ -572,7 +582,6 @@
 
         const width = 800;
         const height = Object.keys(data).length * 30;
-        data = data;
         xValue = d => d.global_sales;
         idValue = d => d.id;
         yValue = d => d.name;
@@ -589,6 +598,7 @@
             .range([0, innerHeight])
             .padding(0.1);
 
+        d3.select('#barchart svg').remove();
 
         var svg = d3.select('#barchart').append('svg')
             .attr("id", "barsvg")
