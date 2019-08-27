@@ -87,6 +87,7 @@
 // -------------------------------------------------------------------------
 
     var data = [];
+    
 
     $.ajax({
         url: '../static/data.json',
@@ -97,16 +98,17 @@
         }
     });
 
-    //data = data.slice(0, 50);
+    var filtered = data;
             
 // -------------------------------------------------------------------------
 // FILTER
 // -------------------------------------------------------------------------
 
-    var filterQuery = { genre: [],
+    var filterQuery = { 
+        genre: [],
         platform: [],
         publisher: []
-        };
+    };
 
 
     function test(e) {
@@ -157,10 +159,10 @@
 
             console.log("filter: " + JSON.stringify(filterQuery));
 
-            var filtered = data.filter(function(obj) {
+            filtered = data.filter(function(obj) {
                 return Object.keys(filterQuery).every( function(key) {
                     return (Array.isArray(filterQuery[key]) && (filterQuery[key].some( function(criteria) {
-                        return (typeof obj[key] === 'string' && obj[key].indexOf(criteria) !== -1) //maybe change here type to string if other data is used
+                        return (obj[key] == criteria) //maybe change here type to string if other data is used
                          })) || filterQuery[key].length === 0);
                     });
                 });
@@ -262,7 +264,7 @@
         } else {
             scaleBySales = true;
         }
-        render(data.slice(0, 50));
+        render(filtered);
     }
 
 
@@ -328,6 +330,8 @@
         //show info in middle of pie
         d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
         .style("opacity", "1.0");
+        //show sales on bar chart
+        //todo
     }
 
 
@@ -341,6 +345,8 @@
         //hide info in middle of pie
         d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
             .style("opacity", "0.0");
+        //hide sales on bar chart
+        //todo
     }
 
 
@@ -446,7 +452,7 @@
             .style("opacity", "0.0")
             .style("text-anchor", "middle")
             .style("font-weight", "bold")
-            .style("font-family", "'Arial Black','Courier New',Verdana")
+            .style("font-family", "'Arial Black'")
             .text(d => d.data.key);
 
         var format = d3.format(".1f");
@@ -469,7 +475,7 @@
             .attr("fill", "white")
             .style("opacity", "0.0")
             .style("text-anchor", "middle")
-            .style("font-family", "'Arial Black','Courier New',Verdana")
+            .style("font-family", "'Arial Black'")
             .text(d => format((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + " %");
 
         if (scaleBySales) {
@@ -485,7 +491,7 @@
                 .attr("fill", "white")
                 .style("opacity", "0.0")
                 .style("text-anchor", "middle")
-                .style("font-family", "'Arial Black','Courier New',Verdana")
+                .style("font-family", "'Arial Black'")
                 .text(d => d.data.value / 1000000 + " M");
         }
     }
@@ -644,7 +650,7 @@
         idValue = d => d.id;
         yValue = d => d.name;
         
-        const margin = { top: 50, right: 70, bottom: 77, left: 180 + 132 };
+        const margin = { top: 30, right: 70, bottom: 77, left: 180 + 132 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         xScale = d3.scaleLinear()
@@ -688,7 +694,7 @@
   
         xAxisG.append('text')
             .attr('class', 'axis-label')
-            .attr('y', 35)
+            //.style("font-family", "'Arial Black'")
             .attr('x', innerWidth / 2)
             .text(xAxisLabelText);
       
@@ -697,6 +703,7 @@
             .on("mouseover", mouseoverBar)
             .on("mouseleave", mouseoutBar)
             .attr('y', d => yScale(yValue(d)))
+
             .attr('width', d => xScale(xValue(d)))
             .attr('height', yScale.bandwidth() - 5)
             .attr("class", getClassForBar)
@@ -710,7 +717,7 @@
 // -------------------------------------------------------------------------
     function render(data) {
         renderBar(data.slice(0, 50));
-        renderPies(data.slice(0, 50));
+        renderPies(data);
       }
         
    
