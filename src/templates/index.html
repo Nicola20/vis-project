@@ -34,19 +34,19 @@
         </div>
         <div id="filter">
         <div>
-            <div class="dropdown-button">
+            <div class="dropdown-button" value="genre-filter">
                 <span>genre</span>
                 <div class="drop" value="genre-filter"><i class="fas fa-caret-down" value="genre-filter"></i></div>
             </div>
             <div class="options genreToggle" id="genre-filter"></div>
 
-            <div class="dropdown-button">
+            <div class="dropdown-button" value="platform-filter">
                 <span>platform</span>
                 <div class="drop" value="platform-filter"><i class="fas fa-caret-down" value="platform-filter"></i></div>
             </div>
             <div class="options" id="platform-filter"></div>
 
-            <div class="dropdown-button">
+            <div class="dropdown-button" value="publisher-filter">
                 <span>publisher</span>
                 <div class="drop" value="publisher-filter"><i class="fas fa-caret-down" value="publisher-filter"></i></div>
             </div>
@@ -244,7 +244,7 @@
         });
 
 
-    $('.drop').click(function(e) {
+    $('.dropdown-button').click(function(e) {
 
         var selected = "#" + e.target.getAttribute("value");
         var drop = $(selected);
