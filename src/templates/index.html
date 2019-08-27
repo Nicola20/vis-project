@@ -98,76 +98,95 @@
         }
     });
 
+
+            
+// -------------------------------------------------------------------------
+// GLOBAL VARIBLES
+// -------------------------------------------------------------------------
+
+    var minRange = 0;
+    var maxRange = 82.74*1000000;
     var filtered = data;
+
             
 // -------------------------------------------------------------------------
 // FILTER
 // -------------------------------------------------------------------------
 
-    var filterQuery = { 
+    var filterQuery = {
         genre: [],
         platform: [],
         publisher: []
-    };
+        };
 
 
-    function test(e) {
-        $(e.target).parent().css("color", "red");
-        filterCheckbox(e);
-    }
+    function filter(e) {
+        if (e != null) {
 
 
-    function filterCheckbox(e) {
-        if(e.target.checked == true) {
-            if(e.target.getAttribute("typo") == "genre")
-                filterQuery.genre.push(e.target.value);
+            if(e.target.checked == true) {
+                if(e.target.getAttribute("typo") == "genre")
+                    filterQuery.genre.push(e.target.value);
 
-            if(e.target.getAttribute("typo") == "platform")
-                filterQuery.platform.push(e.target.value);
+                if(e.target.getAttribute("typo") == "platform")
+                    filterQuery.platform.push(e.target.value);
 
-            if(e.target.getAttribute("typo") == "publisher")
-                filterQuery.publisher.push(e.target.value);
-        } else {
-            if(e.target.getAttribute("typo") == "genre") {
-                for( var i = 0; i < filterQuery.genre.length; i++){
-                    if (filterQuery.genre[i] === e.target.value) {
-                        filterQuery.genre.splice(i, 1);
-                        i--;
+                if(e.target.getAttribute("typo") == "publisher")
+                    filterQuery.publisher.push(e.target.value);
+            } else {
+                if(e.target.getAttribute("typo") == "genre") {
+                    for( var i = 0; i < filterQuery.genre.length; i++){
+                        if (filterQuery.genre[i] === e.target.value) {
+                            filterQuery.genre.splice(i, 1);
+                            i--;
+                        }
                     }
                 }
-            }
 
-            if(e.target.getAttribute("typo") == "platform") {
-                for( var i = 0; i < filterQuery.platform.length; i++){
-                    if (filterQuery.platform[i] === e.target.value) {
-                        filterQuery.platform.splice(i, 1);
-                        i--;
+                if(e.target.getAttribute("typo") == "platform") {
+                    for( var i = 0; i < filterQuery.platform.length; i++){
+                        if (filterQuery.platform[i] === e.target.value) {
+                            filterQuery.platform.splice(i, 1);
+                            i--;
+                        }
                     }
                 }
-            }
 
-            if(e.target.getAttribute("typo") == "publisher") {
-                for( var i = 0; i < filterQuery.publisher.length; i++){
-                    if (filterQuery.publisher[i] === e.target.value) {
-                        filterQuery.publisher.splice(i, 1);
-                        i--;
+                if(e.target.getAttribute("typo") == "publisher") {
+                    for( var i = 0; i < filterQuery.publisher.length; i++){
+                        if (filterQuery.publisher[i] === e.target.value) {
+                            filterQuery.publisher.splice(i, 1);
+                            i--;
+                        }
                     }
                 }
-            }
+              }
 
-          }
+        }
 
+            filtered = data.filter(function(d) {
+                return d.global_sales >= minRange && d.global_sales <= maxRange;
+            });
 
-            filtered = data.filter(function(obj) {
+            filtered = filtered.filter(function(obj) {
                 return Object.keys(filterQuery).every( function(key) {
-                    return ((filterQuery[key].some( function(criteria) {
-                        return (obj[key] == criteria)
+
+                    return (Array.isArray(filterQuery[key]) && (filterQuery[key].some( function(criteria) {
+                        return (typeof obj[key] === 'string' && obj[key] == criteria)
                          })) || filterQuery[key].length === 0);
                     });
                 });
+
+
             d3.select('#barsvg').remove();
+
             render(filtered.slice(0, 50));
     }
+
+
+  
+
+
 
 
     function generateOptions(data, category) {
@@ -179,7 +198,7 @@
                 genres.push(data[i][category].toString());
         }
         for (var k = 0; k < genres.length; k++) {
-            var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='test(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "' typo ='" + category + "'><span class='checkmark'></span></label>";
+            var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='filter(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "' typo ='" + category + "'><span class='checkmark'></span></label>";
             $(selector).append(html);
         }
     }
@@ -195,14 +214,17 @@
         $( "#slider-range" ).slider({
             range: true,
             min: 0,
-            max: 500,
-            values: [ 0, 500 ],
+            max: 83,
+            values: [0, 82.74],
             slide: function( event, ui ) {
-                    //$( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
                 $("#min").text(ui.values[0]);
                 $("#max").text(ui.values[1]);
             },
             stop: function (event, ui) {
+                minRange = ui.values[0]*1000000;
+                maxRange = ui.values[1]*1000000;
+                filter();
+                render(filtered);
           }
         });
         $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
