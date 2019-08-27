@@ -97,7 +97,7 @@
         }
     });
 
-    data = data.slice(0, 50);
+    //data = data.slice(0, 50);
             
 // -------------------------------------------------------------------------
 // FILTER
@@ -165,7 +165,8 @@
                     });
                 });
             d3.select('#barsvg').remove();
-            render(filtered);
+            render(filtered.slice(0, 50));
+            console.log("filtered: " + JSON.stringify(filtered));
     }
 
 
@@ -261,7 +262,7 @@
         } else {
             scaleBySales = true;
         }
-        render(data);
+        render(data.slice(0, 50));
     }
 
 
@@ -638,7 +639,7 @@
     function renderBar(data) {
 
         const width = 800;
-        const height = Object.keys(data).length * 30;
+        const height = 1080;
         xValue = d => d.global_sales;
         idValue = d => d.id;
         yValue = d => d.name;
@@ -708,8 +709,8 @@
 // 
 // -------------------------------------------------------------------------
     function render(data) {
-        renderBar(data);
-        renderPies(data);
+        renderBar(data.slice(0, 50));
+        renderPies(data.slice(0, 50));
       }
         
    
