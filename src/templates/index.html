@@ -157,18 +157,16 @@
 
           }
 
-            console.log("filter: " + JSON.stringify(filterQuery));
 
             filtered = data.filter(function(obj) {
                 return Object.keys(filterQuery).every( function(key) {
-                    return (Array.isArray(filterQuery[key]) && (filterQuery[key].some( function(criteria) {
-                        return (obj[key] == criteria) //maybe change here type to string if other data is used
+                    return ((filterQuery[key].some( function(criteria) {
+                        return (obj[key] == criteria)
                          })) || filterQuery[key].length === 0);
                     });
                 });
             d3.select('#barsvg').remove();
             render(filtered.slice(0, 50));
-            console.log("filtered: " + JSON.stringify(filtered));
     }
 
 
@@ -205,7 +203,6 @@
                 $("#max").text(ui.values[1]);
             },
             stop: function (event, ui) {
-            console.log("I stopped at the value " + ui.values[0] + ", " + ui.values[1]); //works
           }
         });
         $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
