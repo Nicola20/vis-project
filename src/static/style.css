@@ -47,7 +47,9 @@ line {
 
 #filter-container {
     background-color: white;
-    height: 800px;
+    height: 100%;
+    height: 100%;
+    overflow: auto;
     display: none;
     z-index: 20;
     position: fixed;
@@ -61,6 +63,7 @@ line {
     height: 65px;
     text-align: center;
     padding-top: 14px;
+
 }
 
 #header span {
@@ -80,7 +83,7 @@ line {
 
 #filter {
     margin: 0px 20px 30px 30px;
-    display: inline-block;
+    display: block;
 
 }
 

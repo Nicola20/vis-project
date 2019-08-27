@@ -36,19 +36,19 @@
         <div>
             <div class="dropdown-button">
                 <span>genre</span>
-                <div class="drop"><i class="fas fa-caret-down"></i></div>
+                <div class="drop" value="genre-filter"><i class="fas fa-caret-down" value="genre-filter"></i></div>
             </div>
-            <div class="options" id="genre-filter"></div>
+            <div class="options genreToggle" id="genre-filter"></div>
 
             <div class="dropdown-button">
                 <span>platform</span>
-                <div class="drop"><i class="fas fa-caret-down"></i></div>
+                <div class="drop" value="platform-filter"><i class="fas fa-caret-down" value="platform-filter"></i></div>
             </div>
             <div class="options" id="platform-filter"></div>
 
             <div class="dropdown-button">
                 <span>publisher</span>
-                <div class="drop"><i class="fas fa-caret-down"></i></div>
+                <div class="drop" value="publisher-filter"><i class="fas fa-caret-down" value="publisher-filter"></i></div>
             </div>
             <div class="options" id="publisher-filter"></div>
 
@@ -103,7 +103,10 @@
 // FILTER
 // -------------------------------------------------------------------------
 
-    var filterQuery = { genre: []};
+    var filterQuery = { genre: [],
+        platform: [],
+        publisher: []
+        };
 
 
     function test(e) {
@@ -182,13 +185,17 @@
         });
 
 
-    $('.dropdown-button').click(function(e) {
-        var drop = $('.options');
+    $('.drop').click(function(e) {
+
+        var selected = "#" + e.target.getAttribute("value");
+        var drop = $(selected);
+
         if(drop.css("display") == "none") {
             drop.css("display", "block");
         } else {
             drop.css("display", "none");
         }
+
     });
 
 
