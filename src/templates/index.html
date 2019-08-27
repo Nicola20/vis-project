@@ -97,7 +97,14 @@
         }
     });
 
-    //data = data.slice(0, 50);
+// -------------------------------------------------------------------------
+// GLOBAL VARIBLES
+// -------------------------------------------------------------------------
+
+    var minRange = 0;
+    var maxRange = 82.74*1000000;
+    var filtered = data;
+
             
 // -------------------------------------------------------------------------
 // FILTER
@@ -110,13 +117,8 @@
 
 
     function test(e) {
-        $(e.target).parent().css("color", "red");
-        filterCheckbox(e);
-    }
-
-
-    function filterCheckbox(e) {
-        if(e.target.checked == true) {
+        //$(e.target).parent().css("color", "red");
+                if(e.target.checked == true) {
             if(e.target.getAttribute("typo") == "genre")
                 filterQuery.genre.push(e.target.value);
 
@@ -154,19 +156,33 @@
             }
 
           }
+        filter();
+    }
 
-            console.log("filter: " + JSON.stringify(filterQuery));
 
-            var filtered = data.filter(function(obj) {
+    function filter() {
+
+            //console.log("filter: " + JSON.stringify(filterQuery));
+           filtered = filterSales(data);
+
+            filtered = data.filter(function(obj) {
                 return Object.keys(filterQuery).every( function(key) {
                     return (Array.isArray(filterQuery[key]) && (filterQuery[key].some( function(criteria) {
-                        return (typeof obj[key] === 'string' && obj[key].indexOf(criteria) !== -1) //maybe change here type to string if other data is used
+                        console.log("filterQuery " + filterQuery[key]);
+                        return (typeof obj[key] === 'string' && obj[key] == criteria)
                          })) || filterQuery[key].length === 0);
                     });
                 });
             d3.select('#barsvg').remove();
             render(filtered.slice(0, 50));
-            console.log("filtered: " + JSON.stringify(filtered));
+            //console.log("filtered: " + JSON.stringify(filtered));
+
+    }
+
+    function filterSales(filtered){
+        return filtered.filter( function(d) {
+            return d.global_sales >= minRange && d.global_sales <= maxRange;
+        });
     }
 
 
@@ -195,15 +211,19 @@
         $( "#slider-range" ).slider({
             range: true,
             min: 0,
-            max: 500,
-            values: [ 0, 500 ],
+            max: 83,
+            values: [0, 82.74],
             slide: function( event, ui ) {
-                    //$( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
                 $("#min").text(ui.values[0]);
                 $("#max").text(ui.values[1]);
             },
             stop: function (event, ui) {
-            console.log("I stopped at the value " + ui.values[0] + ", " + ui.values[1]); //works
+                console.log("I stopped at the value " + ui.values[0] + ", " + ui.values[1]); //works
+                minRange = ui.values[0]*1000000;
+                maxRange = ui.values[1]*1000000;
+                console.log("min, max " + minRange + ", " + maxRange);
+                filtered = filter(data);
+                render(filtered);
           }
         });
         $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
@@ -262,7 +282,7 @@
         } else {
             scaleBySales = true;
         }
-        render(data.slice(0, 50));
+        render(filtered);
     }
 
 
@@ -710,10 +730,8 @@
 // -------------------------------------------------------------------------
     function render(data) {
         renderBar(data.slice(0, 50));
-        renderPies(data.slice(0, 50));
+        renderPies(data);
       }
-        
-   
 
 render(data);
 
