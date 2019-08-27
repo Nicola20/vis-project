@@ -86,29 +86,52 @@ line {
     display: block;
 }
 
+
+#range-label {
+    color: #757575;
+    margin-bottom: 15px;
+    font-weight:bold;
+}
+
 #range {
-    padding-top: 50px;
+    margin-top: 40px;
 }
 
 .ui-slider-range {
-    background-color: blue;
+    background-color: #00C851;
+}
+
+.ui-slider-handle {
+    background-color: #eceff1 !important;
+    border-radius: 13px;
+    border: 2px solid !important;
+    border-color: #90a4ae !important;
 }
 
 #slider-range {
-    background-color: orange;
+    background-color: #e0e0e0;
+    width: 390px;
+    margin: 10px 10px 0px 10px;
+    border-radius: 10px;
 }
 
 .range-value {
     background-color: #eceff1;
     width: 40px;
-    height: 30px;
+    height: 20px;
     display: inline-block;
     border-radius: 3px;
     border: 1px solid;
     border-color: #90a4ae;
     text-align: center;
     font-size: 13px;
+    color: #757575;
 }
+
+.ui-state-active {
+    background-color: #78909c !important;
+}
+
 
 #max {
     float: right;
@@ -131,7 +154,7 @@ line {
 
 .options {
     display: none;
-    background-color: black;
+    background-color: #78909c;
     padding: 10px 0px 5px 20px;
     overflow: auto;
     width: 400px;

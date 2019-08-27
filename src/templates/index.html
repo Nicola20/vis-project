@@ -53,6 +53,7 @@
             <div class="options" id="publisher-filter"></div>
 
             <div id="range">
+                <div id="range-label">Global Sales In Million</div>
                 <div>
                     <div class="range-value" id="min"></div>
                     <div class="range-value" id="max"></div>
@@ -225,7 +226,7 @@
                 maxRange = ui.values[1]*1000000;
                 filter();
                 render(filtered);
-          }
+            }
         });
         $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
         $( "#max" ).text($( "#slider-range" ).slider( "values", 1 ));
