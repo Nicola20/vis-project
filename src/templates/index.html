@@ -117,73 +117,72 @@
 
 
     function test(e) {
-        //$(e.target).parent().css("color", "red");
-                if(e.target.checked == true) {
-            if(e.target.getAttribute("typo") == "genre")
-                filterQuery.genre.push(e.target.value);
+        if (e != null) {
 
-            if(e.target.getAttribute("typo") == "platform")
-                filterQuery.platform.push(e.target.value);
 
-            if(e.target.getAttribute("typo") == "publisher")
-                filterQuery.publisher.push(e.target.value);
-        } else {
-            if(e.target.getAttribute("typo") == "genre") {
-                for( var i = 0; i < filterQuery.genre.length; i++){
-                    if (filterQuery.genre[i] === e.target.value) {
-                        filterQuery.genre.splice(i, 1);
-                        i--;
+            if(e.target.checked == true) {
+                if(e.target.getAttribute("typo") == "genre")
+                    filterQuery.genre.push(e.target.value);
+
+                if(e.target.getAttribute("typo") == "platform")
+                    filterQuery.platform.push(e.target.value);
+
+                if(e.target.getAttribute("typo") == "publisher")
+                    filterQuery.publisher.push(e.target.value);
+            } else {
+                if(e.target.getAttribute("typo") == "genre") {
+                    for( var i = 0; i < filterQuery.genre.length; i++){
+                        if (filterQuery.genre[i] === e.target.value) {
+                            filterQuery.genre.splice(i, 1);
+                            i--;
+                        }
                     }
                 }
-            }
 
-            if(e.target.getAttribute("typo") == "platform") {
-                for( var i = 0; i < filterQuery.platform.length; i++){
-                    if (filterQuery.platform[i] === e.target.value) {
-                        filterQuery.platform.splice(i, 1);
-                        i--;
+                if(e.target.getAttribute("typo") == "platform") {
+                    for( var i = 0; i < filterQuery.platform.length; i++){
+                        if (filterQuery.platform[i] === e.target.value) {
+                            filterQuery.platform.splice(i, 1);
+                            i--;
+                        }
                     }
                 }
-            }
 
-            if(e.target.getAttribute("typo") == "publisher") {
-                for( var i = 0; i < filterQuery.publisher.length; i++){
-                    if (filterQuery.publisher[i] === e.target.value) {
-                        filterQuery.publisher.splice(i, 1);
-                        i--;
+                if(e.target.getAttribute("typo") == "publisher") {
+                    for( var i = 0; i < filterQuery.publisher.length; i++){
+                        if (filterQuery.publisher[i] === e.target.value) {
+                            filterQuery.publisher.splice(i, 1);
+                            i--;
+                        }
                     }
                 }
-            }
+              }
 
-          }
-        filter();
-    }
+        }
 
+            filtered = data.filter(function(d) {
+                return d.global_sales >= minRange && d.global_sales <= maxRange;
+            });
 
-    function filter() {
-
-            //console.log("filter: " + JSON.stringify(filterQuery));
-           filtered = filterSales(data);
-
-            filtered = data.filter(function(obj) {
+            filtered = filtered.filter(function(obj) {
                 return Object.keys(filterQuery).every( function(key) {
+
                     return (Array.isArray(filterQuery[key]) && (filterQuery[key].some( function(criteria) {
-                        console.log("filterQuery " + filterQuery[key]);
                         return (typeof obj[key] === 'string' && obj[key] == criteria)
                          })) || filterQuery[key].length === 0);
                     });
                 });
+
+
             d3.select('#barsvg').remove();
+
             render(filtered.slice(0, 50));
-            //console.log("filtered: " + JSON.stringify(filtered));
-
     }
 
-    function filterSales(filtered){
-        return filtered.filter( function(d) {
-            return d.global_sales >= minRange && d.global_sales <= maxRange;
-        });
-    }
+
+  
+
+
 
 
     function generateOptions(data, category) {
@@ -218,11 +217,9 @@
                 $("#max").text(ui.values[1]);
             },
             stop: function (event, ui) {
-                console.log("I stopped at the value " + ui.values[0] + ", " + ui.values[1]); //works
                 minRange = ui.values[0]*1000000;
                 maxRange = ui.values[1]*1000000;
-                console.log("min, max " + minRange + ", " + maxRange);
-                filtered = filter(data);
+                test();
                 render(filtered);
           }
         });
