@@ -125,6 +125,35 @@
 
             if(e.target.getAttribute("typo") == "publisher")
                 filterQuery.publisher.push(e.target.value);
+        } else {
+            if(e.target.getAttribute("typo") == "genre") {
+                for( var i = 0; i < filterQuery.genre.length; i++){
+                    if (filterQuery.genre[i] === e.target.value) {
+                        filterQuery.genre.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+
+            if(e.target.getAttribute("typo") == "platform") {
+                for( var i = 0; i < filterQuery.platform.length; i++){
+                    if (filterQuery.platform[i] === e.target.value) {
+                        filterQuery.platform.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+
+            if(e.target.getAttribute("typo") == "publisher") {
+                for( var i = 0; i < filterQuery.publisher.length; i++){
+                    if (filterQuery.publisher[i] === e.target.value) {
+                        filterQuery.publisher.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+
+          }
 
             console.log("filter: " + JSON.stringify(filterQuery));
 
@@ -137,7 +166,6 @@
                 });
             d3.select('#barsvg').remove();
             render(filtered);
-        }
     }
 
 
