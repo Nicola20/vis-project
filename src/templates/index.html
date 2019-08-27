@@ -116,9 +116,18 @@
 
 
     function filterCheckbox(e) {
-        if(e.target.checked == true) { //works
-            filterQuery.genre.push(e.target.value);
-            //var filtered = data.filter(d => d.genre == e.target.value);
+        if(e.target.checked == true) {
+            if(e.target.getAttribute("typo") == "genre")
+                filterQuery.genre.push(e.target.value);
+
+            if(e.target.getAttribute("typo") == "platform")
+                filterQuery.platform.push(e.target.value);
+
+            if(e.target.getAttribute("typo") == "publisher")
+                filterQuery.publisher.push(e.target.value);
+
+            console.log("filter: " + JSON.stringify(filterQuery));
+
             var filtered = data.filter(function(obj) {
                 return Object.keys(filterQuery).every( function(key) {
                     return (Array.isArray(filterQuery[key]) && (filterQuery[key].some( function(criteria) {
@@ -128,7 +137,7 @@
                 });
             d3.select('#barsvg').remove();
             render(filtered);
-        } //if curly
+        }
     }
 
 
@@ -141,7 +150,7 @@
                 genres.push(data[i][category].toString());
         }
         for (var k = 0; k < genres.length; k++) {
-            var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='test(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "'><span class='checkmark'></span></label>";
+            var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='test(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "' typo ='" + category + "'><span class='checkmark'></span></label>";
             $(selector).append(html);
         }
     }
