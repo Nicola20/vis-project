@@ -254,3 +254,8 @@ button {
 button:hover {
     background-color: #026097;
 }
+
+.label {
+    font-size: 13px;
+}
+

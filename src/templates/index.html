@@ -489,7 +489,7 @@
             .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
             .attr("dy", d => {
                 if (scaleBySales) {
-                    return "-3.0%";
+                    return "-2.0%";
                 } else {
                     return "-1.5%";
                 }
@@ -502,7 +502,8 @@
             .style("text-anchor", "middle")
             .style("font-weight", "bold")
             .style("font-family", "'Arial Black'")
-            .text(d => d.data.key);
+            .text(d => d.data.key)
+                .call(wrap, radius -20);
 
         var format = d3.format(".1f");
 
@@ -513,7 +514,7 @@
             .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
             .attr("dy", d => {
                 if (scaleBySales) {
-                    return "0.0%";
+                    return "1.0%";
                 } else {
                     return "1.5%";
                 }
@@ -544,6 +545,36 @@
                 .text(d => d.data.value / 1000000 + " M");
         }
     }
+
+    var breaks;
+
+    function wrap(text, width) {
+    text.each(function() {
+
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    breaks = 0;
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        ++breaks;
+        console.log("Anzahl Linebreaks: " + breaks + ", " + JSON.stringify(text));
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y + 1).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
 
 
     function renderPieChart(data, feature, color, scaleBySales, kindOfSales) {
