@@ -279,6 +279,12 @@
     toggleSalesButton.addEventListener("click", toggle);
 
     function toggle() {
+        if ($(this).text() == "Change to Sold Games") {
+            $(this).text("Change to Global Sales");
+        } else {
+            $(this).text("Change to Sold Games");
+        }
+
         if (scaleBySales) {
             scaleBySales = false;
         } else {
