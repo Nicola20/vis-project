@@ -64,16 +64,15 @@
         </div>
     </div>
 
+
+    <div class="pie-chart-container">
         <form>
             <button type="button" id="toggle-sales">Change to Sold Games</button>
         </form>
-
-    <div class="pie-chart-container" style="width: 1100px; height: 1000px; position: relative;">
-
         
-        <div id="platform-container" style="position: absolute; top: 0px; left: 0px;"></div>
-        <div id="genre-container" style="position: absolute; bottom: 300px; right: 0px;"></div>
-        <div id="publisher-container" style="position: absolute; bottom: 0px; left: 0px;"></div>
+        <div id="platform-container"></div>
+        <div id="genre-container"></div>
+        <div id="publisher-container"></div>
         
     </div>
 
@@ -387,7 +386,6 @@
 
     function getClassForPie(d, feature) {
         var c = "arc ";
-        console.log(d)
         c += feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--");
         return c;
     }
@@ -404,8 +402,10 @@
             .style("opacity", "1.0")
             .style("cursor", "pointer");
 
+        var feature = this.parentNode.classList[1]
+        feature = feature.substring(0, feature.indexOf("-"));
         //show info in middle of pie
-        d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
+        d3.selectAll( ".info." + feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
             .style("opacity", "1.0");
 
         //show selections on bar chart
@@ -431,7 +431,10 @@
         d3.select(this)
             .style("opacity", "0.5");
         //hide info in middle of pie
-        d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
+        var feature = this.parentNode.classList[1]
+        feature = feature.substring(0, feature.indexOf("-"));
+
+        d3.selectAll(".info." + feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
             .style("opacity", "0.0");
         //hide sales on bar chart
         var selectedEntries = d3.selectAll(".entry." + this.parentElement.classList[1]);
@@ -775,13 +778,14 @@
   
         const xAxis = d3.axisBottom(xScale)
             .tickFormat(xAxisTickFormat)
-            .ticks(9);
-            //.tickSize(-innerHeight);
+            
+            .tickSize(-innerHeight);
 
 
         const xAxisG = g.append('g')
             .call(xAxis)
             .attr('transform', `translate(0,${innerHeight})`);
+
   
         xAxisG.select('.domain').remove(); //deletes the line of the x axis
   
