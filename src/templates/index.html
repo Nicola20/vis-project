@@ -344,14 +344,27 @@
         //change opacity of pie
         d3.select(this)
             .style("opacity", "1.0");
-        //change color of bar
-        d3.selectAll(".rect." + this.parentElement.classList[1])
-            .attr("fill", "red");
+
         //show info in middle of pie
         d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
-        .style("opacity", "1.0");
-        //show sales on bar chart
-        //todo
+            .style("opacity", "1.0");
+
+        //show selections on bar chart
+        var selectedEntries = d3.selectAll(".entry." + this.parentElement.classList[1]);
+
+        selectedEntries.select("rect")
+            .attr('width', d => xScale(xValue(d)) + 5)
+            .attr("y", d => yScale(yValue(d)) - 2.5)
+            .attr("height", yScale.bandwidth() + 1)
+            .attr("fill", "red")
+            .style("cursor", "pointer");
+
+        selectedEntries.select(".ylabel")
+            .style("font-weight", "bold");
+
+        selectedEntries.select(".salesHover")
+            .style("opacity", 1.0);
+            
     }
 
 
@@ -359,14 +372,24 @@
         //change opacity of pie
         d3.select(this)
             .style("opacity", "0.5")
-        //change color of bar
-        d3.selectAll(".rect." + this.parentElement.classList[1])
-            .attr("fill", "#7283a7");
         //hide info in middle of pie
         d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
             .style("opacity", "0.0");
         //hide sales on bar chart
-        //todo
+        var selectedEntries = d3.selectAll(".entry." + this.parentElement.classList[1]);
+
+        selectedEntries.select("rect")
+            .attr('y', d => yScale(yValue(d)))
+            .attr('width', d => xScale(xValue(d)))
+            .attr('height', yScale.bandwidth() - 5)
+            .attr("fill","#7283a7")
+            .style("cursor", "pointer");
+
+        selectedEntries.select(".ylabel")
+            .style("font-weight", "normal");
+
+        selectedEntries.select(".salesHover")
+            .style("opacity", 0.0);
     }
 
 
@@ -560,9 +583,8 @@
     // HELPERS
     // ---------------------------------------------------------------------
 
-
-    function getClassForBar(d) {
-        var c = "rect ";
+    function getClassForEntry(d) {
+        var c = "entry ";
         c += d.platform.replace(/ /g, "-").replace(/^[0-9]/,"--") + " ";
         c += d.genre.replace(/ /g, "-").replace(/^[0-9]/,"--") + " ";
         c += d.publisher.replace(/ /g, "-").replace(/^[0-9]/,"--");
@@ -576,30 +598,26 @@
 
 
     function mouseoverBar(d) {
-        //change color of bar
-        //d3.select(this)
-        //    .attr("fill", "red");
-        var hover = d3.select(this);
-        hover.transition()
-           .duration(200)
-           .attr('width', d => xScale(xValue(d)) + 5)
-           .attr("y", d => yScale(yValue(d)) - 2.5)
-           .attr("height", yScale.bandwidth() + 1);
-        hover.attr("fill", "red");
-        hover.style("cursor", "pointer");
-        var size = (d.global_sales / 1000000) + " M";
-        size = size.length;
 
-        g.append("text")
-            .attr("class", "salesHover")
-            .attr('x', function() {
-                return xScale(d.global_sales) + 15;
-            })
-            .attr('y', function() {
-                return yScale(d.name) + 18; //stimmt schonmal von der Höhe her
-            })
-            .text(function() { return (d.global_sales / 1000000) + "M";});
+        d3.select(this).select("rect")
+            .transition()
+            .duration(200)
+            .attr('width', d => xScale(xValue(d)) + 5)
+            .attr("y", d => yScale(yValue(d)) - 2.5)
+            .attr("height", yScale.bandwidth() + 1)
+            .attr("fill", "red")
+            .style("cursor", "pointer");
 
+        d3.select(this).select(".ylabel")
+            .transition()
+            .duration(200)
+            .style("font-weight", "bold");
+
+        d3.select(this).select(".salesHover")
+            .transition()
+            .duration(200)
+            .style("opacity", 1.0);
+   
         //change opacity of pie
         d3.selectAll(".arc." + this.classList[1] + " path")
             .style("opacity", "1.0");
@@ -619,18 +637,24 @@
 
 
     function mouseoutBar(d) {
-        //change color of bar
-        //d3.select(this)
-        //    .attr("fill", "black");
-        d3.selectAll('.salesHover')
-            .remove()
-        var hover = d3.select(this);
-        hover.transition()
-           .duration(200)
-           .attr('y', d => yScale(yValue(d)))
-           .attr('width', d => xScale(xValue(d)))
-           .attr('height', yScale.bandwidth() - 5)
-           .attr("fill","#7283a7");
+ 
+        d3.select(this).select("rect")
+            .transition()
+            .duration(200)
+            .attr('y', d => yScale(yValue(d)))
+            .attr('width', d => xScale(xValue(d)))
+            .attr('height', yScale.bandwidth() - 5)
+            .attr("fill","#7283a7");
+
+        d3.select(this).select(".ylabel")
+            .transition()
+            .duration(200)
+            .style("font-weight", "normal");
+
+        d3.select(this).select(".salesHover")
+            .transition()
+            .duration(200)
+            .style("opacity", 0.0);
 
         //change opacity of pie
         d3.selectAll(".arc." + this.classList[1] + " path")
@@ -654,7 +678,6 @@
     // RENDERING
     // ---------------------------------------------------------------------
 
-    const xAxisLabelText = 'Global Sales';
     var xValue;
     var yValue;
     var xScale;
@@ -702,10 +725,7 @@
             .tickFormat(xAxisTickFormat)
             .tickSize(-innerHeight);
 
-        g.append('g')
-            .call(d3.axisLeft(yScale))
-            .selectAll('.domain, .tick line')
-            .remove();
+
 
         const xAxisG = g.append('g').call(xAxis)
             .attr('transform', `translate(0,${innerHeight})`);
@@ -714,20 +734,81 @@
   
         xAxisG.append('text')
             .attr('class', 'axis-label')
-            //.style("font-family", "'Arial Black'")
+            .style("font-family", "'Arial Black'")
             .attr('x', innerWidth / 2)
-            .text(xAxisLabelText);
+            .text("Global Sales");
       
+        /**
+
         g.selectAll('rect').data(data)
             .enter().append('rect')
             .on("mouseover", mouseoverBar)
             .on("mouseleave", mouseoutBar)
             .attr('y', d => yScale(yValue(d)))
-
             .attr('width', d => xScale(xValue(d)))
             .attr('height', yScale.bandwidth() - 5)
             .attr("class", getClassForBar)
             .attr("fill",  "#7283a7");
+
+        g.selectAll(".y-axis-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", getClassForYLabel)
+            .attr("x", -5)
+            .attr("y", d => yScale(yValue(d)) + (yScale.bandwidth() + 5) / 2)
+            .style("text-anchor", "end")
+            .style("font-size", "15px")
+            .style("font-weight", "bold")
+            .text(d => {
+                if (yValue(d).length > 30){
+                    return yValue(d).substring(0, 26) + "...";
+                } else {
+                    return yValue(d);
+                }
+                    
+                
+            });
+
+            */
+
+            // append g element for each data entry
+            var entry = g.selectAll("entry")
+                .data(data)
+                .enter()
+                .append("g")
+                .attr("class", getClassForEntry)
+                .on("mouseover", mouseoverBar)
+                .on("mouseout", mouseoutBar)
+
+            //append bars to 
+            entry.append("rect")
+                .attr('y', d => yScale(yValue(d)))
+                .attr('width', d => xScale(xValue(d)))
+                .attr('height', yScale.bandwidth() - 5)
+                .attr("fill",  "#7283a7");
+            //append y label
+            entry.append("text")
+                .attr("class", "ylabel")
+                .attr("x", -5)
+                .attr("y", d => yScale(yValue(d)) + (yScale.bandwidth() + 5) / 2)
+                .style("text-anchor", "end")
+                .style("font-size", "15px")
+                .style("font-weight", "normal")
+                .text(d => {
+                    if (yValue(d).length > 30){
+                        return yValue(d).substring(0, 26) + "...";
+                    } else {
+                        return yValue(d);
+                    }
+                });
+            //append sales to display on hover
+            entry.append("text")
+                .attr("class", "salesHover")
+                .attr("opacity", "0")
+                .attr('x', d => xScale(d.global_sales) + 15)
+                .attr('y', d => yScale(d.name) + 18)
+                .text(d => (d.global_sales / 1000000) + "M");
     }
     
 
