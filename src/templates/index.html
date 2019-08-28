@@ -64,16 +64,16 @@
         </div>
     </div>
 
-
-    <div class="pie-chart-container">
-        
         <form>
             <button type="button" id="toggle-sales">Change to Sold Games</button>
         </form>
+
+    <div class="pie-chart-container" style="width: 1100px; height: 1000px; position: relative;">
+
         
-        <div id="platform-container"></div>
-        <div id="genre-container"></div>
-        <div id="publisher-container"></div>
+        <div id="platform-container" style="position: absolute; top: 0px; left: 0px;"></div>
+        <div id="genre-container" style="position: absolute; bottom: 300px; right: 0px;"></div>
+        <div id="publisher-container" style="position: absolute; bottom: 0px; left: 0px;"></div>
         
     </div>
 
@@ -108,6 +108,7 @@
     var minRange = 0;
     var maxRange = 82.74*1000000;
     var filtered = data;
+    var threshold = 0.02
 
             
 // -------------------------------------------------------------------------
@@ -180,7 +181,7 @@
 
 
             d3.select('#barsvg').remove();
-
+            computeAllOther(threshold);
             render(filtered);
     }
 
@@ -264,8 +265,8 @@
 // -------------------------------------------------------------------------
 
 
-    const size = 800 
-    const radius = (size / 2) - 200;
+    const size = 600 
+    const radius = (size / 2) - 150;
 
     var scaleBySales = false;
     const kindOfSales = "global_sales";
@@ -284,6 +285,7 @@
         } else {
             scaleBySales = true;
         }
+        computeAllOther(threshold);
         render(filtered);
     }
 
@@ -296,6 +298,61 @@
     // ---------------------------------------------------------------------
     // HELPERS
     // ---------------------------------------------------------------------
+
+
+    function computeOther(feature, threshold) {
+        var featureData = []; //change from array to object to allow featureData["Nintendo"]
+        var total = 0.0;
+
+        for (var i = 0; i < filtered.length; i++) {
+            var featureKey = filtered[i][feature];
+            var flag = true;
+            for (var j = 0; j < featureData.length; j++) {
+                if (featureData[j].key == featureKey) {
+                    if (scaleBySales) {
+                        featureData[j].value += filtered[i][kindOfSales];
+                        total += filtered[i][kindOfSales];
+                    } else {
+                        featureData[j].value += 1;
+                        total += 1.0;
+                    }
+                    flag = false;
+                    break;
+                }
+            }
+
+            if (flag) {
+                if (scaleBySales) {
+                    featureData.push({"key" : featureKey, "value" : filtered[i][kindOfSales]});
+                } else {
+                    featureData.push({"key" : featureKey, "value" : 1.0});
+                }
+            }
+        }
+
+        for (var i = 0; i < featureData.length; i++) {
+            featureData[i].value /= total;
+        }
+        for (var i = 0; i < filtered.length; i++) {
+            var x = filtered[i][feature]
+            for (var j = 0; j < featureData.length; j++) {
+                if (featureData[j].key == x) {
+                    if (featureData[j].value <= threshold) {
+                        filtered[i][feature] = "Other";
+                    }
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    function computeAllOther(threshold) {
+        computeOther("genre", threshold);
+        computeOther("publisher", threshold);
+        computeOther("platform", threshold);
+    }
 
 
     function getFeatureDataForPie(data, feature, scaleBySales, kindOfSales) {
@@ -328,9 +385,10 @@
     }
 
 
-    function getClassForPie(d) {
+    function getClassForPie(d, feature) {
         var c = "arc ";
-        c += d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--");
+        console.log(d)
+        c += feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--");
         return c;
     }
 
@@ -343,7 +401,8 @@
     function mouseoverPie(d) {
         //change opacity of pie
         d3.select(this)
-            .style("opacity", "1.0");
+            .style("opacity", "1.0")
+            .style("cursor", "pointer");
 
         //show info in middle of pie
         d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
@@ -370,7 +429,7 @@
     function mouseoutPie(d) {
         //change opacity of pie
         d3.select(this)
-            .style("opacity", "0.5")
+            .style("opacity", "0.5");
         //hide info in middle of pie
         d3.selectAll(".info." + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--"))
             .style("opacity", "0.0");
@@ -395,14 +454,14 @@
     // RENDERING
     // ---------------------------------------------------------------------
 
-    function renderArcs(svg, pie, featureData, arc, color) {
+    function renderArcs(svg, pie, feature, featureData, arc, color) {
 
         var g = svg.selectAll(".arc")
             .data(pie(featureData))
             .enter()
             .append("g")
             .attr("transform", "translate(" + (size / 2) + "," + (size / 2) + ")")
-            .attr("class", getClassForPie);
+            .attr("class", d => getClassForPie(d, feature));
 
         g.append("path")
             .attr("d", arc)
@@ -416,8 +475,8 @@
 
     function renderLabels(svg, pie, featureData) {
         var textArc = d3.arc()
-            .innerRadius(radius * 1.45)
-            .outerRadius(radius * 1.45);
+            .innerRadius(radius * 1.3)
+            .outerRadius(radius * 1.3);
 
         svg.selectAll(".label")
             .data(pie(featureData))
@@ -451,8 +510,8 @@
 
     function renderLines(svg, pie, featureData, arc) {
         var textArc = d3.arc()
-            .innerRadius(radius * 1.4)
-            .outerRadius(radius * 1.4);
+            .innerRadius(radius * 1.25)
+            .outerRadius(radius * 1.25);
 
         svg.selectAll(".line")
             .data(pie(featureData))
@@ -473,7 +532,7 @@
     }
 
 
-    function renderInfo(svg, pie, featureData) {
+    function renderInfo(svg, pie, feature, featureData) {
          svg.selectAll(".info.key")
             .data(pie(featureData))
             .enter()
@@ -487,7 +546,7 @@
                 }
             })
             .attr("class", d => {
-                return "info key " + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
+                return "info key " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
             .attr("fill", "white")
             .style("opacity", "0.0")
@@ -511,7 +570,7 @@
                 }
             })
             .attr("class", d => {
-                return "info percent " + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
+                return "info percent " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
             .attr("fill", "white")
             .style("opacity", "0.0")
@@ -527,7 +586,7 @@
                 .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
                 .attr("dy", "3.0%")
                 .attr("class", d => {
-                    return "info sales " + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
+                    return "info sales " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
                 })
                 .attr("fill", "white")
                 .style("opacity", "0.0")
@@ -558,10 +617,10 @@
 
         const featureData = getFeatureDataForPie(data, feature, scaleBySales, kindOfSales);
 
-        renderArcs(svg, pie, featureData, arc, color);
+        renderArcs(svg, pie, feature, featureData, arc, color);
         renderLabels(svg, pie, featureData);
         renderLines(svg, pie, featureData, arc);
-        renderInfo(svg, pie, featureData);
+        renderInfo(svg, pie, feature, featureData);
     }
 
 
@@ -583,9 +642,9 @@
 
     function getClassForEntry(d) {
         var c = "entry ";
-        c += d.platform.replace(/ /g, "-").replace(/^[0-9]/,"--") + " ";
-        c += d.genre.replace(/ /g, "-").replace(/^[0-9]/,"--") + " ";
-        c += d.publisher.replace(/ /g, "-").replace(/^[0-9]/,"--");
+        c += "platform-" + d.platform.replace(/ /g, "-").replace(/^[0-9]/,"--") + " ";
+        c += "genre-" + d.genre.replace(/ /g, "-").replace(/^[0-9]/,"--") + " ";
+        c += "publisher-" + d.publisher.replace(/ /g, "-").replace(/^[0-9]/,"--");
         return c;
     }
 
@@ -674,10 +733,6 @@
     // RENDERING
     // ---------------------------------------------------------------------
 
-    var xValue;
-    var yValue;
-    var xScale;
-    var yScale;
 
 
 
@@ -686,12 +741,13 @@
         const width = 800;
         const height = 1080;
         xValue = d => d.global_sales;
-        idValue = d => d.id;
         yValue = d => d.name;
         
         const margin = { top: 30, right: 70, bottom: 77, left: 180 + 132 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
+
+
         xScale = d3.scaleLinear()
             .domain([0, d3.max(data, xValue)])
             .range([0, innerWidth]);
@@ -719,7 +775,8 @@
   
         const xAxis = d3.axisBottom(xScale)
             .tickFormat(xAxisTickFormat)
-            .tickSize(-innerHeight);
+            .ticks(9);
+            //.tickSize(-innerHeight);
 
 
         const xAxisG = g.append('g')
@@ -789,12 +846,12 @@
 // 
 // -------------------------------------------------------------------------
     function render(data) {
+        computeAllOther(threshold);
         renderBar(data.slice(0, 50));
         renderPies(data);
       }
         
    
-
 render(data);
 
 
