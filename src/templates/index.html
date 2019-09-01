@@ -17,6 +17,12 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <!-- credits for the ghost svg -->
+    <!-- <div>Icons made by
+            <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
+            from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+         </div> -->
 </head>
 <body>
 
@@ -67,19 +73,20 @@
 
     <div id="error-message">
         <h1>Sorry, there is no data for these filter</h1>
+        <img src="../static/ghost.svg">
     </div>
 
 
     <div class="pie-chart-container">
-        
+
         <form>
             <button type="button" id="toggle-sales">Change to Sold Games</button>
         </form>
-        
+
         <div id="platform-container"></div>
         <div id="genre-container"></div>
         <div id="publisher-container"></div>
-        
+
     </div>
 
 
@@ -196,16 +203,13 @@
             //console.log("filtered " + JSON.stringify(filtered) + ", " + filtered.length);
             //console.log("last filtered " + JSON.stringify(last_filtered) + ", " + last_filtered.length);
             //this works just fine
-/*
+
             if (filtered.length == 0) {
                 $('#error-message').css("display" , "inline-block");
-                $('#barchart').css("display" , "none");
-                $('.pie-chart-container').css("display" , "none");
+
             } else {
                 $('#error-message').css("display" , "none");
-                $('#barchart').css("display" , "inline-block");
-                $('.pie-chart-container').css("display" , "block");
-            }*/
+            }
 
     }
 
@@ -661,8 +665,10 @@
             svg.attr("filter",'url(#blurry)');
             $('#toggle-sales').css("filter", "blur(5px)");
             empty = false;
+            svg.attr("pointer-events", "none");
         } else {
             $('#toggle-sales').css("filter", "blur(0px)");
+            svg.attr("pointer-events", "auto");
         }
 
         svg.append("text")
@@ -853,7 +859,10 @@
 
         if (emptyBool) {
             svg.attr("filter",'url(#blur)');
+            svg.attr("pointer-events", "none");
             emptyBool = false;
+        } else {
+            svg.attr("pointer-events", "auto");
         }
 
         g = svg.append('g')

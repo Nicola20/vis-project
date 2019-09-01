@@ -21,7 +21,6 @@ line {
     left: 50px;
     display: inline-block;
     position:absolute;
-    //filter: greyscale(1);
 }
 
 
@@ -281,9 +280,18 @@ button:hover {
 
 #error-message {
     display: none;
-    margin-left: 28%;
-    margin-top: 100px;
+    position: fixed;
+    z-index: 20;
+    margin-left: 30%;
+    margin-top: 150px;
     width: 600px;
     color: white;
+    text-align: center;
+    font-weight: bold;
+}
+
+img {
+    height: 260px;
+    width: auto;
 }
 
