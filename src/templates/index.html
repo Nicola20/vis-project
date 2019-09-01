@@ -272,6 +272,13 @@
                 platform: [],
                 publisher: []
             };
+        var $slider = $("#slider-range");
+        $slider.slider("values", 0, 0);
+        $slider.slider("values", 1, 83);
+        $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
+        $( "#max" ).text($( "#slider-range" ).slider( "values", 1 ));
+        minRange = 0*1000000;
+        maxRange = 83*1000000;
         filter();
 
     });

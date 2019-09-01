@@ -178,7 +178,7 @@ line {
 /* Hide the browser's default checkbox */
 
 .container input {
-    /*display: none;*/
+    display: none;
 }
 
 
