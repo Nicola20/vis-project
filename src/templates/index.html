@@ -33,6 +33,7 @@
             <span><strong>FILTER</strong></span>
         </div>
         <div id="filter">
+            <button id="reset-filter">Reset Filter</button>
         <div>
             <div class="dropdown-button" value="genre-filter">
                 <span>genre</span>
@@ -63,6 +64,7 @@
         </div>
         </div>
     </div>
+
 
 
     <div class="pie-chart-container">
@@ -182,6 +184,9 @@
             d3.select('#barsvg').remove();
 
             render(filtered);
+
+            console.log(filtered);
+
     }
 
 
@@ -258,6 +263,20 @@
         }
 
     });
+
+    $('#reset-filter').click(function(e) {
+        $("input[type='checkbox']:checked").prop("checked", false)
+        console.log("called");
+        filterQuery = {
+                genre: [],
+                platform: [],
+                publisher: []
+            };
+        filter();
+
+    });
+
+
 
 
 // -------------------------------------------------------------------------
@@ -430,11 +449,8 @@
 
         var testArc = d3.arc()
             .innerRadius(radius * 1.45)
-            .outerRadius(radius * 1.15 + 30);
-    /*
-        textArc = d3.arc()
-            .innerRadius(radius * 1.45)
-            .outerRadius(radius * featureData.length);*/
+            .outerRadius(radius * 1.15 + 300);
+
 
         var labels = svg.selectAll(".label")
             .data(pie(featureData))
@@ -447,24 +463,8 @@
             .style("font-weight", "bold")
             .style("font-family", "'Arial Black','Courier New',Verdana")
             .attr('transform', function(d, i) {
-                 //console.log(i);
-                  var pos = textArc.centroid(d);
-                 if (i > 0) {
-                    var thisbb = this.getBoundingClientRect()
-                    prevbb = prev.getBoundingClientRect();
-                    if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
-                    if (!(thisbb.right < prevbb.left ||
-                        thisbb.left > prevbb.right ||
-                        thisbb.bottom < prevbb.top ||
-                        thisbb.top > prevbb.bottom)) {
-                           pos = testArc.centroid(d);
-                            //console.log(d.data.key + ", " + i);
-                         // console.log(d.data.key + ", " + i + ", " + thisbb.top + ", " + thisbb.right + ", "  + thisbb.bottom + ", " + thisbb.left );
-                        }
-                    }
-                    } //end of if
+                var pos = textArc.centroid(d);
 
-                prev = this;
                 var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
                 pos[0] += (size / 2);
                 pos[1] += (size / 2);
@@ -479,18 +479,119 @@
                     return d.data.key;
                 }
             });
-            console.log("labels " + JSON.stringify(labels));
-/*
+            //console.log("labels " + JSON.stringify(labels));
+
+
+    /*
+           var alpha = 0.5;
+            var spacing = 2;
             //console.log("nodes " + JSON.stringify(d3.select('#platform').selectAll("svg text")));
+        function relax() {
             labels.each (function(d,i) {
                 if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
+                    var a = this;
+                    var abb = a.getBoundingClientRect();
+                    var da = d3.select(a);
+                    y1 = da.attr("y");
+                    //console.log("bounding box " + abb.top + ", " + JSON.stringify(a.__data__.data));
                     labels.each( function(d, j) {
-                        if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
-                           console.log("i: " + i + " j: " + j + " label " + d[i]);
-                        }
+                       if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
+                            var x = this;
+                            var xbb = x.getBoundingClientRect();
+                            var dx = d3.select(x);
+                            // a & b are the same element and don't collide.
+                            if (a == x) return;
+
+                            // a & b are on opposite sides of the chart and
+                            // don't collide
+                            if (da.attr("text-anchor") != dx.attr("text-anchor")) return;
+                            //else console.log("not on opposite site " + a.__data__.data.key + ", " + x.__data__.data.key);
+
+                            y2 = dx.attr("y");
+                            deltaY = y1 - y2;
+
+                                                        // Our spacing is greater than our specified spacing,
+                            // so they don't collide.
+                            if (Math.abs(deltaY) > spacing) return;
+
+                            // If the labels collide, we'll push each
+                            // of the two labels up and down a little bit.
+                            again = true;
+                            sign = deltaY > 0 ? 1 : -1;
+                            adjust = sign * alpha;
+                            da.attr("y",+y1 + adjust);
+                            dx.attr("y",+y2 - adjust);
+
+                          if (xbb.right > abb.left ||
+                            xbb.left < abb.right ||
+                            xbb.bottom > abb.top ||
+                            x.top < abb.bottom) {
+                                dx.attr("y", 30);
+                                console.log("trep " + x.__data__.data.key + ", " + a.__data__.data.key );
+                           }
+                           }
                     });
-                }
-            });*/
+                } //erstes if
+            });
+
+            if(again)
+                setTimeout(relax, 5);
+            }
+
+            relax();*/
+/*
+function relax() {
+    again = false;
+    labels.each(function (d, i) {
+        if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
+        a = this;
+        da = d3.select(a);
+        y1 = da.attr("y");
+        labels.each(function (d, j) {
+            if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
+            b = this;
+            // a & b are the same element and don't collide.
+            if (a == b) return;
+            db = d3.select(b);
+            // a & b are on opposite sides of the chart and
+            // don't collide
+            if (da.attr("text-anchor") != db.attr("text-anchor")) return;
+            //else console.log("sides " + )
+            // Now let's calculate the distance between
+            // these elements.
+            y2 = db.attr("y");
+            deltaY = y1 - y2;
+
+            // Our spacing is greater than our specified spacing,
+            // so they don't collide.
+            if (Math.abs(deltaY) > spacing) return;
+
+            // If the labels collide, we'll push each
+            // of the two labels up and down a little bit.
+            again = true;
+            sign = deltaY > 0 ? 1 : -1;
+            adjust = sign * alpha;
+            da.attr("y",+y1 + adjust);
+            db.attr("y",+y2 - adjust);
+            }
+
+        });
+    }
+    });
+    // Adjust our line leaders here
+    // so that they follow the labels.
+    if(again) {
+
+        labelElements = textLabels[0];
+        textLines.attr("y2",function(d,i) {
+            labelForLine = d3.select(labelElements[i]);
+            return labelForLine.attr("y");
+
+        setTimeout(relax,20);
+    }
+}
+
+relax();*/
 
 
     }
