@@ -254,3 +254,32 @@ button {
 button:hover {
     background-color: #026097;
 }
+
+.label {
+    font-size: 13px;
+}
+
+#platform-container {
+    margin-right: 300px;
+    margin-top: - 100px;
+    display:inline-block;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 20px;
+    color: white;
+}
+
+.pie-title {
+    font-weight: bold;
+    font-size: 15px;
+    color: white;
+    text-decoration: underline;
+}
+
+
+
+#selectpie {
+	float: right;
+}

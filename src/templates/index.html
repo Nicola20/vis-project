@@ -413,8 +413,8 @@
 
 
         selectedEntries.selectAll("rect")
-            .attr("fill", "red")
-            .attr("stroke", "red")
+            .attr("fill", "#00C851")
+            .attr("stroke", "#00C851")
             .attr("stroke-width", "3")
             .style("cursor", "pointer");
 
@@ -422,14 +422,14 @@
             .style("font-weight", "bold");
 
         selectedEntries.select(".salesHover")
-            .style("opacity", 1.0);
+            .style("opacity", "1.0");
     }
 
 
     function mouseoutPie(d) {
         //change opacity of pie
         d3.select(this)
-            .style("opacity", "0.5");
+            .style("opacity", "0.7");
         //hide info in middle of pie
         var feature = this.parentNode.classList[1]
         feature = feature.substring(0, feature.indexOf("-"));
@@ -449,7 +449,7 @@
             .style("font-weight", "normal");
 
         selectedEntries.select(".salesHover")
-            .style("opacity", 0.0);
+            .style("opacity", "0.0");
     }
 
 
@@ -470,7 +470,7 @@
             .attr("d", arc)
             .style("fill", color)
             .style("stroke", "black")
-            .style("opacity", "0.5")
+            .style("opacity", "0.7")
             .on("mouseover", mouseoverPie)
             .on("mouseout", mouseoutPie);
     }
@@ -556,7 +556,8 @@
             .style("text-anchor", "middle")
             .style("font-weight", "bold")
             .style("font-family", "'Arial Black'")
-            .text(d => d.data.key);
+            .text(d => d.data.key)
+            .call(wrap, radius -20);
 
         var format = d3.format(".1f");
 
@@ -600,6 +601,31 @@
     }
 
 
+    function wrap(text, width) {
+        text.each(function() {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+        while (word = words.pop()) {
+          line.push(word);
+          tspan.text(line.join(" "));
+          if (tspan.node().getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text.append("tspan").attr("x", 0).attr("y", y + 1).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+          }
+        }
+      });
+    }
+
+
     function renderPieChart(data, feature, color, scaleBySales, kindOfSales) {
         d3.select("#"  + feature).remove();
         d3.select("#"  + feature + "-container")
@@ -610,6 +636,12 @@
 
 
         const svg = d3.select("#" + feature);
+
+        svg.append("text")
+            .attr("class", "pie-title")
+            .attr("x", 0)
+            .attr("y", 40)
+            .text(feature.substring(0, 1).toUpperCase() + feature.substring(1));
 
         var pie = d3.pie()
             .value(d => d.value);
@@ -628,9 +660,9 @@
 
 
     function renderPies(data) {
-        renderPieChart(data, "platform", "blue", scaleBySales, kindOfSales);
-        renderPieChart(data, "genre", "yellow", scaleBySales, kindOfSales);
-        renderPieChart(data, "publisher", "red", scaleBySales, kindOfSales);
+        renderPieChart(data, "platform", "#26c6da", scaleBySales, kindOfSales);
+        renderPieChart(data, "genre", "#ffff00", scaleBySales, kindOfSales);
+        renderPieChart(data, "publisher", "#ef5350", scaleBySales, kindOfSales);
     }
 
 
@@ -659,12 +691,12 @@
 
     function mouseoverBar() {
         d3.select(this.parentNode).select("rect")
-            .attr("fill", "red");
+            .attr("fill", "#00C851");
         d3.select(this.parentNode).select("rect")
             .transition()
             .duration(200)
             
-            .attr("stroke", "red")
+            .attr("stroke", "#00C851")
             .style("cursor", "pointer");
 
         d3.select(this.parentNode).select(".ylabel")
@@ -716,11 +748,11 @@
 
         //change opacity of pie
         d3.selectAll(".arc." + this.parentNode.classList[1] + " path")
-            .style("opacity", "0.5");
+            .style("opacity", "0.7");
         d3.selectAll(".arc." + this.parentNode.classList[2] + " path")
-            .style("opacity", "0.5");
+            .style("opacity", "0.7");
         d3.selectAll(".arc." + this.parentNode.classList[3] + " path")
-            .style("opacity", "0.5");
+            .style("opacity", "0.7");
 
         //change opacity of info in pie
         d3.selectAll(".info." + this.parentNode.classList[1])
@@ -746,7 +778,7 @@
         xValue = d => d.global_sales;
         yValue = d => d.name;
         
-        const margin = { top: 30, right: 70, bottom: 77, left: 180 + 132 };
+        const margin = { top: 70, right: 70, bottom: 77, left: 180 + 132 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
 
@@ -770,7 +802,11 @@
         g = svg.append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
 
-
+        svg.append("text")
+            .attr("class", "title")
+            .attr("x", margin.left)
+            .attr("y", 40)
+            .text("Top 50 Games");
 
         const xAxisTickFormat = number =>
             d3.format('.3s')(number)
