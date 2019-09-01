@@ -238,6 +238,7 @@ line {
 
 .pie-chart-container {
 	float: right;
+	width: 1080px;
 }
 
 button {
@@ -259,11 +260,7 @@ button:hover {
     font-size: 13px;
 }
 
-#platform-container {
-    margin-right: 300px;
-    margin-top: - 100px;
-    display:inline-block;
-}
+
 
 .title {
     font-weight: bold;
@@ -280,6 +277,26 @@ button:hover {
 
 
 
-#selectpie {
+#select-feature {
 	float: right;
 }
+
+
+
+#container-1 {
+	margin: auto;
+	width: 1000px;
+}
+
+#container-2 {
+	float: left;
+	width:400px;
+	margin-left: 100px;
+}
+
+#container-3 {
+	float: right;
+		width:400px;
+	margin-right: 100px;
+}
+

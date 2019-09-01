@@ -66,13 +66,21 @@
 
 
     <div class="pie-chart-container">
+
         <form>
             <button type="button" id="toggle-sales">Change to Sold Games</button>
         </form>
         
-        <div id="platform-container"></div>
-        <div id="genre-container"></div>
-        <div id="publisher-container"></div>
+
+        <form id="select-feature">
+            <input type="radio" name="feature" value="platform" onclick="selectFeature()">Platform
+            <input type="radio" name="feature" value="genre" onclick="selectFeature()">Genre
+            <input type="radio" name="feature" value="publisher" onclick="selectFeature()">Publisher
+        </form>
+
+        <div id="container-1"></div>
+        <div id="container-2"></div>
+        <div id="container-3"></div>
         
     </div>
 
@@ -87,7 +95,7 @@
 // -------------------------------------------------------------------------
 
     var data = [];
-    
+
 
     $.ajax({
         url: '../static/data.json',
@@ -97,22 +105,46 @@
             data = json;
         }
     });
+    var scaleBySales = false;
+    const kindOfSales = "global_sales";
 
-
+    
             
 // -------------------------------------------------------------------------
 // GLOBAL VARIBLES
 // -------------------------------------------------------------------------
 
     var minRange = 0;
-    var maxRange = 82.74*1000000;
-    var filtered = data;
-    var threshold = 0.02
+    var maxRange = 82.74 * 1000000;
 
-            
+    var filtered = data.slice();
+    var threshold = 0.02;
+
+    var selectedFeature = "platform";
+    render(data);
+
+
 // -------------------------------------------------------------------------
 // FILTER
 // -------------------------------------------------------------------------
+
+
+
+
+    function selectFeature() {
+        for (var i = 0; i < 3; i++) {
+            if (document.getElementById("select-feature").querySelectorAll("input")[i].checked) {
+                console.log(document.getElementById("select-feature").querySelectorAll("input")[i].value)
+                selectedFeature = document.getElementById("select-feature").querySelectorAll("input")[i].value;
+            }
+        }
+        if(filtered != null) {
+            render(filtered);
+        } else {
+            render(data);
+        }
+    }
+
 
     var filterQuery = {
         genre: [],
@@ -162,12 +194,14 @@
                     }
                 }
               }
-
         }
+            
 
+            
             filtered = data.filter(function(d) {
                 return d.global_sales >= minRange && d.global_sales <= maxRange;
             });
+
 
             filtered = filtered.filter(function(obj) {
                 return Object.keys(filterQuery).every( function(key) {
@@ -180,9 +214,11 @@
 
 
             d3.select('#barsvg').remove();
-            computeAllOther(threshold);
             render(filtered);
-    }
+          }
+            
+
+
 
 
   
@@ -198,6 +234,7 @@
             if (!genres.includes(data[i][category].toString()))
                 genres.push(data[i][category].toString());
         }
+        genres.sort();
         for (var k = 0; k < genres.length; k++) {
             var html = "<label class='container'><span>" + genres[k] + "</span><input onclick='filter(event)' class='check' id='MyBox3' type='checkbox' value='" + genres[k] + "' typo ='" + category + "'><span class='checkmark'></span></label>";
             $(selector).append(html);
@@ -264,11 +301,8 @@
 // -------------------------------------------------------------------------
 
 
-    const size = 600 
-    const radius = (size / 2) - 150;
 
-    var scaleBySales = false;
-    const kindOfSales = "global_sales";
+
 
 
 // -------------------------------------------------------------------------
@@ -284,7 +318,7 @@
         } else {
             scaleBySales = true;
         }
-        computeAllOther(threshold);
+        
         render(filtered);
     }
 
@@ -302,7 +336,7 @@
     function computeOther(feature, threshold) {
         var featureData = []; //change from array to object to allow featureData["Nintendo"]
         var total = 0.0;
-
+        
         for (var i = 0; i < filtered.length; i++) {
             var featureKey = filtered[i][feature];
             var flag = true;
@@ -344,7 +378,7 @@
             }
 
         }
-
+        return filtered;
     }
 
     function computeAllOther(threshold) {
@@ -354,16 +388,16 @@
     }
 
 
-    function getFeatureDataForPie(data, feature, scaleBySales, kindOfSales) {
+    function getFeatureDataForPie(test, feature, scaleBySales, kindOfSales) {
         const featureData = [];
 
-        for (var i = 0; i < data.length; i++) {
-            var featureKey = data[i][feature];
+        for (var i = 0; i < test.length; i++) {
+            var featureKey = test[i][feature];
             var flag = true;
             for (var j = 0; j < featureData.length; j++) {
                 if (featureData[j].key == featureKey) {
                     if (scaleBySales) {
-                        featureData[j].value += data[i][kindOfSales];
+                        featureData[j].value += test[i][kindOfSales];
                     } else {
                         featureData[j].value += 1;
                     }
@@ -373,7 +407,7 @@
             }
             if (flag) {
                 if (scaleBySales) {
-                    featureData.push({"key" : featureKey, "value" : data[i][kindOfSales]});
+                    featureData.push({"key" : featureKey, "value" : test[i][kindOfSales]});
                 } else {
                     featureData.push({"key" : featureKey, "value" : 1});
                 }
@@ -457,13 +491,13 @@
     // RENDERING
     // ---------------------------------------------------------------------
 
-    function renderArcs(svg, pie, feature, featureData, arc, color) {
+    function renderArcs(svg, pie, feature, featureData, arc, color, size, radius) {
 
         var g = svg.selectAll(".arc")
             .data(pie(featureData))
             .enter()
             .append("g")
-            .attr("transform", "translate(" + (size / 2) + "," + (size / 2) + ")")
+            .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("class", d => getClassForPie(d, feature));
 
         g.append("path")
@@ -476,7 +510,7 @@
     }
 
 
-    function renderLabels(svg, pie, featureData) {
+    function renderLabels(svg, pie, featureData, size, radius) {
         var textArc = d3.arc()
             .innerRadius(radius * 1.3)
             .outerRadius(radius * 1.3);
@@ -485,7 +519,7 @@
             .data(pie(featureData))
             .enter()
             .append("text")
-            .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+            .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("dy", ".35em")
             .attr("class", "label")
             .attr("fill", "white")
@@ -494,8 +528,8 @@
             .attr('transform', function(d) {
                 var pos = textArc.centroid(d);
                 var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
-                pos[0] += (size / 2);
-                pos[1] += (size / 2);
+                pos[0] += (size[0] / 2);
+                pos[1] += (size[1] / 2);
                 return 'translate(' + pos + ')';
             })
             .style('text-anchor', function(d) {
@@ -511,7 +545,7 @@
     }
 
 
-    function renderLines(svg, pie, featureData, arc) {
+    function renderLines(svg, pie, featureData, arc, size, radius) {
         var textArc = d3.arc()
             .innerRadius(radius * 1.25)
             .outerRadius(radius * 1.25);
@@ -520,7 +554,7 @@
             .data(pie(featureData))
             .enter()
             .append("polyline")
-            .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+            .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("stroke", "white")
             .style("fill", "none")
             .attr("stroke-width", "2")
@@ -535,12 +569,12 @@
     }
 
 
-    function renderInfo(svg, pie, feature, featureData) {
+    function renderInfoInside(svg, pie, feature, featureData, size, radius) {
          svg.selectAll(".info.key")
             .data(pie(featureData))
             .enter()
             .append("text")
-            .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+            .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("dy", d => {
                 if (scaleBySales) {
                     return "-3.0%";
@@ -557,7 +591,7 @@
             .style("font-weight", "bold")
             .style("font-family", "'Arial Black'")
             .text(d => d.data.key)
-            .call(wrap, radius -20);
+            .call(wrap, radius -25);
 
         var format = d3.format(".1f");
 
@@ -565,7 +599,7 @@
             .data(pie(featureData))
             .enter()
             .append("text")
-            .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+            .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("dy", d => {
                 if (scaleBySales) {
                     return "0.0%";
@@ -587,7 +621,7 @@
                 .data(pie(featureData))
                 .enter()
                 .append("text")
-                .attr("transform", "translate(" + (size/ 2) + "," + (size / 2) + ")")
+                .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
                 .attr("dy", "3.0%")
                 .attr("class", d => {
                     return "info sales " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
@@ -599,6 +633,34 @@
                 .text(d => d.data.value / 1000000 + " M");
         }
     }
+
+
+    function renderInfoInsideSmall(svg, pie, feature, featureData, size, radius) {
+         svg.selectAll(".info.key")
+            .data(pie(featureData))
+            .enter()
+            .append("text")
+            .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
+            .attr("dy", d => {
+                if (scaleBySales) {
+                    return "-3.0%";
+                } else {
+                    return "-1.5%";
+                }
+            })
+            .attr("class", d => {
+                return "info key " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
+            })
+            .attr("fill", "white")
+            .style("opacity", "0.0")
+            .style("text-anchor", "middle")
+            .style("font-weight", "bold")
+            .style("font-family", "'Arial Black'")
+            .text(d => d.data.key)
+            .call(wrap, radius - 25);
+
+
+    }    
 
 
     function wrap(text, width) {
@@ -625,14 +687,29 @@
       });
     }
 
-
-    function renderPieChart(data, feature, color, scaleBySales, kindOfSales) {
+    function renderPieChart(data, feature, color, scaleBySales, kindOfSales, test) {
         d3.select("#"  + feature).remove();
-        d3.select("#"  + feature + "-container")
+        var container = "#container-";
+        var size;
+        var radius;
+
+        if (selectedFeature == feature) {
+            container += "1";
+            size = [1000, 547];
+            radius = 205;
+            console.log(radius)
+        } else {
+            container += test.pop();
+            size = [400, 400];
+            radius = 150;
+        }
+
+
+        d3.select(container)
             .append("svg")
             .attr("id", feature)
-            .attr("width", size)
-            .attr("height", size);
+            .attr("width", size[0])
+            .attr("height", size[1]);
 
 
         const svg = d3.select("#" + feature);
@@ -647,22 +724,30 @@
             .value(d => d.value);
 
         var arc = d3.arc()
-            .innerRadius(radius - 100)
+            .innerRadius(radius / 1.95238)
             .outerRadius(radius);
+
+        console.log(arc.innerRadius())
+        console.log(arc.outerRadius())
 
         const featureData = getFeatureDataForPie(data, feature, scaleBySales, kindOfSales);
 
-        renderArcs(svg, pie, feature, featureData, arc, color);
-        renderLabels(svg, pie, featureData);
-        renderLines(svg, pie, featureData, arc);
-        renderInfo(svg, pie, feature, featureData);
+        renderArcs(svg, pie, feature, featureData, arc, color, size, radius);
+        if (selectedFeature == feature) {
+            renderLabels(svg, pie, featureData, size, radius);
+            renderLines(svg, pie, featureData, arc, size, radius);
+            renderInfoInside(svg, pie, feature, featureData, size, radius);
+        } else {
+            renderInfoInsideSmall(svg, pie, feature, featureData, size, radius);
+        }    
     }
 
 
     function renderPies(data) {
-        renderPieChart(data, "platform", "#26c6da", scaleBySales, kindOfSales);
-        renderPieChart(data, "genre", "#ffff00", scaleBySales, kindOfSales);
-        renderPieChart(data, "publisher", "#ef5350", scaleBySales, kindOfSales);
+        var test = ["2","3"]
+        renderPieChart(data, "platform", "#26c6da", scaleBySales, kindOfSales, test);
+        renderPieChart(data, "genre", "#ffff00", scaleBySales, kindOfSales, test);
+        renderPieChart(data, "publisher", "#ef5350", scaleBySales, kindOfSales, test);
     }
 
 
@@ -771,7 +856,7 @@
 
 
 
-    function renderBar(data) {
+    function renderBar(test) {
 
         const width = 800;
         const height = 1080;
@@ -784,7 +869,7 @@
 
 
         xScale = d3.scaleLinear()
-            .domain([0, d3.max(data, xValue)])
+            .domain([0, d3.max(test, xValue)])
             .range([0, innerWidth]);
   
         yScale = d3.scaleBand()
@@ -833,7 +918,7 @@
       
             // append g element for each data entry
             var container = g.selectAll("entry")
-                .data(data)
+                .data(test)
                 .enter()
                 .append("g")
                 .attr("class", getClassForEntry);
@@ -885,14 +970,12 @@
 // -------------------------------------------------------------------------
 // 
 // -------------------------------------------------------------------------
-    function render(data) {
-        computeAllOther(threshold);
-        renderBar(data.slice(0, 50));
-        renderPies(data);
+    function render(test) {
+        renderBar(test.slice(0, 50));
+        renderPies(test);
       }
         
-   
-render(data);
+
 
 
 
