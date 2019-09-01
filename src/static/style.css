@@ -271,3 +271,10 @@ button:hover {
     color: white;
 }
 
+.pie-title {
+    font-weight: bold;
+    font-size: 15px;
+    color: white;
+    text-decoration: underline;
+}
+
