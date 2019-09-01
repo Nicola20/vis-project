@@ -65,6 +65,9 @@
         </div>
     </div>
 
+    <div id="error-message">
+        <h1>Sorry, there is no data for these filter</h1>
+    </div>
 
 
     <div class="pie-chart-container">
@@ -110,6 +113,7 @@
     var minRange = 0;
     var maxRange = 82.74*1000000;
     var filtered = data;
+    var last_filtered;
 
             
 // -------------------------------------------------------------------------
@@ -185,7 +189,23 @@
 
             render(filtered);
 
-            console.log(filtered);
+            //console.log(filtered);
+            if (filtered.length != 0) {
+                last_filtered = filtered;
+            }
+            //console.log("filtered " + JSON.stringify(filtered) + ", " + filtered.length);
+            //console.log("last filtered " + JSON.stringify(last_filtered) + ", " + last_filtered.length);
+            //this works just fine
+/*
+            if (filtered.length == 0) {
+                $('#error-message').css("display" , "inline-block");
+                $('#barchart').css("display" , "none");
+                $('.pie-chart-container').css("display" , "none");
+            } else {
+                $('#error-message').css("display" , "none");
+                $('#barchart').css("display" , "inline-block");
+                $('.pie-chart-container').css("display" , "block");
+            }*/
 
     }
 
@@ -446,6 +466,7 @@
             .style("opacity", "0.7")
             .on("mouseover", mouseoverPie)
             .on("mouseout", mouseoutPie);
+
     }
 
 
@@ -487,119 +508,6 @@
                 }
             });
             //console.log("labels " + JSON.stringify(labels));
-
-
-    /*
-           var alpha = 0.5;
-            var spacing = 2;
-            //console.log("nodes " + JSON.stringify(d3.select('#platform').selectAll("svg text")));
-        function relax() {
-            labels.each (function(d,i) {
-                if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
-                    var a = this;
-                    var abb = a.getBoundingClientRect();
-                    var da = d3.select(a);
-                    y1 = da.attr("y");
-                    //console.log("bounding box " + abb.top + ", " + JSON.stringify(a.__data__.data));
-                    labels.each( function(d, j) {
-                       if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
-                            var x = this;
-                            var xbb = x.getBoundingClientRect();
-                            var dx = d3.select(x);
-                            // a & b are the same element and don't collide.
-                            if (a == x) return;
-
-                            // a & b are on opposite sides of the chart and
-                            // don't collide
-                            if (da.attr("text-anchor") != dx.attr("text-anchor")) return;
-                            //else console.log("not on opposite site " + a.__data__.data.key + ", " + x.__data__.data.key);
-
-                            y2 = dx.attr("y");
-                            deltaY = y1 - y2;
-
-                                                        // Our spacing is greater than our specified spacing,
-                            // so they don't collide.
-                            if (Math.abs(deltaY) > spacing) return;
-
-                            // If the labels collide, we'll push each
-                            // of the two labels up and down a little bit.
-                            again = true;
-                            sign = deltaY > 0 ? 1 : -1;
-                            adjust = sign * alpha;
-                            da.attr("y",+y1 + adjust);
-                            dx.attr("y",+y2 - adjust);
-
-                          if (xbb.right > abb.left ||
-                            xbb.left < abb.right ||
-                            xbb.bottom > abb.top ||
-                            x.top < abb.bottom) {
-                                dx.attr("y", 30);
-                                console.log("trep " + x.__data__.data.key + ", " + a.__data__.data.key );
-                           }
-                           }
-                    });
-                } //erstes if
-            });
-
-            if(again)
-                setTimeout(relax, 5);
-            }
-
-            relax();*/
-/*
-function relax() {
-    again = false;
-    labels.each(function (d, i) {
-        if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
-        a = this;
-        da = d3.select(a);
-        y1 = da.attr("y");
-        labels.each(function (d, j) {
-            if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
-            b = this;
-            // a & b are the same element and don't collide.
-            if (a == b) return;
-            db = d3.select(b);
-            // a & b are on opposite sides of the chart and
-            // don't collide
-            if (da.attr("text-anchor") != db.attr("text-anchor")) return;
-            //else console.log("sides " + )
-            // Now let's calculate the distance between
-            // these elements.
-            y2 = db.attr("y");
-            deltaY = y1 - y2;
-
-            // Our spacing is greater than our specified spacing,
-            // so they don't collide.
-            if (Math.abs(deltaY) > spacing) return;
-
-            // If the labels collide, we'll push each
-            // of the two labels up and down a little bit.
-            again = true;
-            sign = deltaY > 0 ? 1 : -1;
-            adjust = sign * alpha;
-            da.attr("y",+y1 + adjust);
-            db.attr("y",+y2 - adjust);
-            }
-
-        });
-    }
-    });
-    // Adjust our line leaders here
-    // so that they follow the labels.
-    if(again) {
-
-        labelElements = textLabels[0];
-        textLines.attr("y2",function(d,i) {
-            labelForLine = d3.select(labelElements[i]);
-            return labelForLine.attr("y");
-
-        setTimeout(relax,20);
-    }
-}
-
-relax();*/
-
 
     }
 
@@ -721,6 +629,13 @@ relax();*/
 
 
     function renderPieChart(data, feature, color, scaleBySales, kindOfSales) {
+
+        var empty = false;
+
+        if (data.length == 0) {
+            data = last_filtered;
+            empty = true;
+        }
         d3.select("#"  + feature).remove();
         d3.select("#"  + feature + "-container")
             .append("svg")
@@ -730,6 +645,25 @@ relax();*/
 
 
         const svg = d3.select("#" + feature);
+
+        var defs = svg.append('defs');
+
+        // append filter element
+        var blur_filter = defs.append('filter')
+              .attr( 'id', 'blurry' );
+
+        // append gaussian blur to filter
+        blur_filter.append( 'feGaussianBlur' )
+              .attr( 'stdDeviation', 3 )
+              .attr('result', 'blur');
+
+        if (empty) {
+            svg.attr("filter",'url(#blurry)');
+            $('#toggle-sales').css("filter", "blur(5px)");
+            empty = false;
+        } else {
+            $('#toggle-sales').css("filter", "blur(0px)");
+        }
 
         svg.append("text")
            .attr("class", "pie-title")
@@ -754,8 +688,8 @@ relax();*/
 
 
     function renderPies(data) {
-        //renderPieChart(data, "platform", "#26c6da", scaleBySales, kindOfSales);
-        //renderPieChart(data, "genre", "#ffff00", scaleBySales, kindOfSales);
+        renderPieChart(data, "platform", "#26c6da", scaleBySales, kindOfSales);
+        renderPieChart(data, "genre", "#ffff00", scaleBySales, kindOfSales);
         renderPieChart(data, "publisher", "#ef5350", scaleBySales, kindOfSales);
     }
 
@@ -869,25 +803,32 @@ relax();*/
     var xScale;
     var yScale;
     var g;
+    //var empty = [{ "name" : "Wii Sports" ,"id" : "1","platform" : "Wii","genre" : "Sports","publisher" : "Nintendo","year" : "2006.0","na_sales" : 41490000.0,"eu_sales" : 29020000.0,"jp_sales" : 3770000.0,"other_sales" : 8460000.0,"global_sales" : 82740000.0}];
 
+    function renderBar(data_par) {
 
-    function renderBar(data) {
-
+        var emptyBool = false;
         const width = 800;
         const height = 1080;
+
+        if (data_par.length == 0) {
+            emptyBool = true;
+            data_par = last_filtered.slice(0, 50);
+        }
+
         xValue = d => d.global_sales;
         idValue = d => d.id;
         yValue = d => d.name;
-        
+
         const margin = { top: 70, right: 70, bottom: 77, left: 180 + 132 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         xScale = d3.scaleLinear()
-            .domain([0, d3.max(data, xValue)])
+            .domain([0, d3.max(data_par, xValue)])
             .range([0, innerWidth]);
   
         yScale = d3.scaleBand()
-            .domain(data.map(yValue))
+            .domain(data_par.map(yValue))
             .range([0, innerHeight])
             .padding(0.1);
 
@@ -897,6 +838,23 @@ relax();*/
             .attr("id", "barsvg")
             .attr("width" , width)
             .attr("height", height)
+
+
+        var defs = svg.append('defs');
+
+        // append filter element
+        var blur_filter = defs.append('filter')
+              .attr( 'id', 'blur' );
+
+        // append gaussian blur to filter
+        blur_filter.append( 'feGaussianBlur' )
+              .attr( 'stdDeviation', 3 )
+              .attr('result', 'blur');
+
+        if (emptyBool) {
+            svg.attr("filter",'url(#blur)');
+            emptyBool = false;
+        }
 
         g = svg.append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -916,8 +874,6 @@ relax();*/
             .tickFormat(xAxisTickFormat)
             .tickSize(-innerHeight);
 
-
-
         const xAxisG = g.append('g').call(xAxis)
             .attr('transform', `translate(0,${innerHeight})`);
   
@@ -928,44 +884,10 @@ relax();*/
             .style("font-family", "'Arial Black'")
             .attr('x', innerWidth / 2)
             .text("Global Sales");
-      
-        /**
-
-        g.selectAll('rect').data(data)
-            .enter().append('rect')
-            .on("mouseover", mouseoverBar)
-            .on("mouseleave", mouseoutBar)
-            .attr('y', d => yScale(yValue(d)))
-            .attr('width', d => xScale(xValue(d)))
-            .attr('height', yScale.bandwidth() - 5)
-            .attr("class", getClassForBar)
-            .attr("fill",  "#7283a7");
-
-        g.selectAll(".y-axis-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", getClassForYLabel)
-            .attr("x", -5)
-            .attr("y", d => yScale(yValue(d)) + (yScale.bandwidth() + 5) / 2)
-            .style("text-anchor", "end")
-            .style("font-size", "15px")
-            .style("font-weight", "bold")
-            .text(d => {
-                if (yValue(d).length > 30){
-                    return yValue(d).substring(0, 26) + "...";
-                } else {
-                    return yValue(d);
-                }
-                    
-                
-            });
-
-            */
 
             // append g element for each data entry
             var entry = g.selectAll("entry")
-                .data(data)
+                .data(data_par)
                 .enter()
                 .append("g")
                 .attr("class", getClassForEntry)
@@ -1000,6 +922,11 @@ relax();*/
                 .attr('x', d => xScale(d.global_sales) + 15)
                 .attr('y', d => yScale(d.name) + 18)
                 .text(d => (d.global_sales / 1000000) + "M");
+
+
+            if (emptyBool) {
+                entry.style("opacity", "0.0");
+            }
     }
     
 
