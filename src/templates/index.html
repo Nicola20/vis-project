@@ -617,13 +617,7 @@
             .enter()
             .append("text")
             .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
-            .attr("dy", d => {
-                if (scaleBySales) {
-                    return "-2.0%";
-                } else {
-                    return "-1.5%";
-                }
-            })
+            .attr("dy", "0")
             .attr("class", d => {
                 return "info key " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
@@ -631,9 +625,32 @@
             .style("opacity", "0.0")
             .style("text-anchor", "middle")
             .style("font-weight", "bold")
+            .style("cursor", "default")
             .style("font-family", "'Arial Black'")
-            .text(d => d.data.key)
-            .call(wrap, radius -25);
+            .each(function(d) {
+                
+                var text = d.data.key;
+                var words = text.split(" ");
+                var lineCount = words.length;
+                var offset = -3;
+                if (lineCount == 1) {
+                    offset += 0.0;
+                } else if (lineCount == 2) {
+                    offset += -0.6;
+                } else {
+                    offset += -1.2;
+                }   
+                for (var i = 0; i < words.length; i++) {
+                    var word = words[i];
+                    d3.select(this)
+                    .append("tspan")
+                    .attr("y", "0em")
+                    .attr("dy", offset + "em")
+                    .attr("x", "0")
+                    .text(word);
+                    offset += 1.2;
+                }
+            });
 
         var format = d3.format(".1f");
 
@@ -642,18 +659,13 @@
             .enter()
             .append("text")
             .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
-            .attr("dy", d => {
-                if (scaleBySales) {
-                    return "1.0%";
-                } else {
-                    return "1.9%";
-                }
-            })
+            .attr("dy", "0")
             .attr("class", d => {
                 return "info percent " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
             .attr("fill", "#f2f2f2")
             .style("opacity", "0.0")
+            .style("cursor", "default")
             .style("text-anchor", "middle")
             .style("font-family", "'Arial Black'")
             .text(d => format((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + " %");
@@ -664,71 +676,65 @@
                 .enter()
                 .append("text")
                 .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
-                .attr("dy", "3.0%")
+                .attr("dy", "3em")
                 .attr("class", d => {
                     return "info sales " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
                 })
                 .attr("fill", "#f2f2f2")
                 .style("opacity", "0.0")
+                .style("cursor", "default")
                 .style("text-anchor", "middle")
                 .style("font-family", "'Arial Black'")
+                .style("font-weight", "bold")
                 .text(d => d.data.value / 1000000 + " M");
         }
     }
 
 
     function renderInfoInsideSmall(svg, pie, feature, featureData, size, radius) {
-         svg.selectAll(".info.key")
+        svg.selectAll(".info.key")
             .data(pie(featureData))
             .enter()
             .append("text")
             .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
-            .attr("dy", d => {
-                if (scaleBySales) {
-                    return "-1.5%";
-                } else {
-                    return "-1.5%";
-                }
-            })
+            .attr("dy", "0")
             .attr("class", d => {
                 return "info key " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
             .attr("fill", "#f2f2f2")
             .style("opacity", "0.0")
+            .style("cursor", "default")
             .style("text-anchor", "middle")
             .style("font-weight", "bold")
             .style("font-family", "'Arial Black'")
-            .text(d => d.data.key)
-            .call(wrap, radius - 25);
-
-
+            .each(function(d) {
+                var text = d.data.key;
+                var words = text.split(" ");
+                var lineCount = words.length;
+                var offset;
+                if (lineCount == 1) {
+                    offset = 0.0;
+                } else if (lineCount == 2) {
+                    offset = -0.6;
+                } else {
+                    offset = -1.2;
+                }   
+                for (var i = 0; i < words.length; i++) {
+                    var word = words[i];
+                    d3.select(this)
+                    .append("tspan")
+                    .attr("y", "0em")
+                    .attr("dy", offset + "em")
+                    .attr("x", "0")
+                    .text(word);
+                    offset += 1.2;
+                }
+            });
     }    
 
 
-    function wrap(text, width) {
-        text.each(function() {
-        var text = d3.select(this),
-            words = text.text().split(/\s+/).reverse(),
-            word,
-            line = [],
-            lineNumber = 0,
-            lineHeight = 1.1, // ems
-            y = text.attr("y"),
-            dy = parseFloat(text.attr("dy")),
-            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+ 
 
-            while (word = words.pop()) {
-                line.push(word);
-                tspan.text(line.join(" "));
-                if (tspan.node().getComputedTextLength() > width) {
-                    line.pop();
-                    tspan.text(line.join(" "));
-                    line = [word];
-                    tspan = text.append("tspan").attr("x", 0).attr("y", y + 1).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-                }
-            }
-        });
-    }
 
     function renderPieChart(data, feature, color, scaleBySales, kindOfSales, test) {
 
@@ -881,7 +887,7 @@
             .duration(200)
             
             .attr("stroke", "#31BFCD")
-            .style("cursor", "pointer");
+            .style("cursor", "default");
 
         d3.select(this.parentNode).select(".ylabel")
             .transition()
