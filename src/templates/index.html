@@ -28,7 +28,7 @@
 <body>
 
     <div class="tabhandle">
-        <i class="fas fa-filter" style="font-size: 28px; color: white; transform: translateX(80%) translateY(40%);"></i>
+        <i class="fas fa-filter" style="font-size: 28px; color: #f2f2f2; transform: translateX(80%) translateY(40%);"></i>
     </div>
 
 
@@ -41,7 +41,7 @@
         </div>
         <div id="filter">
 
-            <button id="reset-filter">Reset Filter</button>
+            
 
         <div>
             <div class="dropdown-button" value="genre-filter">
@@ -71,6 +71,7 @@
                 <div id="slider-range"></div>
             </div>
         </div>
+        <button id="reset-filter">Reset Filter</button>
         </div>
     </div>
 
@@ -83,7 +84,7 @@
 
 
     <div class="pie-chart-container">
-        <div id="selections">
+
         
             <button type="button" id="toggle-sales">Scale by Occurences</button>
 
@@ -94,12 +95,12 @@
                 <button value="publisher" onclick="selectFeature(event)">Publisher</button>
 
             </div>
-        </div>
-
+ 
+        <div id="container-container">
         <div id="container-1"></div>
         <div id="container-2"></div>
         <div id="container-3"></div>
-        
+        </div>
     </div>
 
 
@@ -487,8 +488,8 @@
 
 
         selectedEntries.selectAll("rect")
-            .attr("fill", "#00C851")
-            .attr("stroke", "#00C851")
+            .attr("fill", "#31BFCD")
+            .attr("stroke", "#31BFCD")
             .attr("stroke-width", "3")
             .style("cursor", "pointer");
 
@@ -503,7 +504,7 @@
     function mouseoutPie(d) {
         //change opacity of pie
         d3.select(this)
-            .style("opacity", "0.7");
+            .style("opacity", "0.75");
         //hide info in middle of pie
         var feature = this.parentNode.classList[1]
         feature = feature.substring(0, feature.indexOf("-"));
@@ -515,7 +516,7 @@
 
 
         selectedEntries.selectAll("rect")
-            .attr("fill","#7283a7")
+            .attr("fill","#08617E")
             .attr("stroke", "none")
             .style("cursor", "pointer");
 
@@ -544,7 +545,8 @@
             .attr("d", arc)
             .style("fill", color)
             .style("stroke", "black")
-            .style("opacity", "0.7")
+            .style("stroke-width", "1")
+            .style("opacity", "0.75")
             .on("mouseover", mouseoverPie)
             .on("mouseout", mouseoutPie);
     }
@@ -562,7 +564,7 @@
             .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("dy", ".35em")
             .attr("class", "label")
-            .attr("fill", "white")
+            .attr("fill", "#f2f2f2")
             .style("font-weight", "bold")
             .style("font-family", "'Arial Black','Courier New',Verdana")
             .attr('transform', function(d) {
@@ -595,9 +597,9 @@
             .enter()
             .append("polyline")
             .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
-            .attr("stroke", "white")
+            .attr("stroke", "#f2f2f2")
             .style("fill", "none")
-            .attr("stroke-width", "2")
+            .attr("stroke-width", "1.5")
             .attr("points", d => {
                 if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 >= 2) {
                     var posA = arc.centroid(d);
@@ -617,7 +619,7 @@
             .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("dy", d => {
                 if (scaleBySales) {
-                    return "-3.0%";
+                    return "-2.0%";
                 } else {
                     return "-1.5%";
                 }
@@ -625,7 +627,7 @@
             .attr("class", d => {
                 return "info key " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
-            .attr("fill", "white")
+            .attr("fill", "#f2f2f2")
             .style("opacity", "0.0")
             .style("text-anchor", "middle")
             .style("font-weight", "bold")
@@ -642,15 +644,15 @@
             .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("dy", d => {
                 if (scaleBySales) {
-                    return "0.0%";
+                    return "1.0%";
                 } else {
-                    return "1.5%";
+                    return "1.9%";
                 }
             })
             .attr("class", d => {
                 return "info percent " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
-            .attr("fill", "white")
+            .attr("fill", "#f2f2f2")
             .style("opacity", "0.0")
             .style("text-anchor", "middle")
             .style("font-family", "'Arial Black'")
@@ -666,7 +668,7 @@
                 .attr("class", d => {
                     return "info sales " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
                 })
-                .attr("fill", "white")
+                .attr("fill", "#f2f2f2")
                 .style("opacity", "0.0")
                 .style("text-anchor", "middle")
                 .style("font-family", "'Arial Black'")
@@ -683,7 +685,7 @@
             .attr("transform", "translate(" + (size[0] / 2) + "," + (size[1] / 2) + ")")
             .attr("dy", d => {
                 if (scaleBySales) {
-                    return "-3.0%";
+                    return "-1.5%";
                 } else {
                     return "-1.5%";
                 }
@@ -691,7 +693,7 @@
             .attr("class", d => {
                 return "info key " +  feature + "-" + d.data.key.replace(/ /g, "-").replace(/^[0-9]/,"--")
             })
-            .attr("fill", "white")
+            .attr("fill", "#f2f2f2")
             .style("opacity", "0.0")
             .style("text-anchor", "middle")
             .style("font-weight", "bold")
@@ -776,18 +778,26 @@
         blur_filter.append('feColorMatrix')
             .attr('in', 'blur')
             .attr('type', 'saturate')
-            .attr('values' , '0.50')
+            .attr('values' , '0.40')
             .attr('result', 'greyscale');
         var feMerge = blur_filter.append('feMerge');
         feMerge.append( 'feMergeNode' )
             .attr( 'in', 'greyscale' )
+
         if (empty) {
             svg.attr("filter",'url(#blurry)');
             $('#toggle-sales').css("filter", "blur(5px)");
+            $('#select-feature').css("filter", "blur(5px)");
+            $('#toggle-sales').css("pointer-events", "none")
+            $('#select-feature').css("pointer-events", "none");
             empty = false;
             svg.attr("pointer-events", "none");
         } else {
             $('#toggle-sales').css("filter", "blur(0px)");
+            $('#select-feature').css("filter", "blur(0px)");
+            $('#toggle-sales').css("pointer-events", "auto")
+            $('#select-feature').css("pointer-events", "auto");
+            empty = false;
             svg.attr("pointer-events", "auto");
         }
 
@@ -796,6 +806,7 @@
             .attr("class", "pie-title")
             .attr("x", x)
             .attr("y", 40)
+            .attr("fill", "#f2f2f2")
             .text(feature.substring(0, 1).toUpperCase() + feature.substring(1));
 
         var pie = d3.pie()
@@ -833,9 +844,9 @@
 
     function renderPies(data) {
         var test = ["2","3"]
-        renderPieChart(data, "platform", "#26c6da", scaleBySales, kindOfSales, test);
-        renderPieChart(data, "genre", "#ffff00", scaleBySales, kindOfSales, test);
-        renderPieChart(data, "publisher", "#ef5350", scaleBySales, kindOfSales, test);
+        renderPieChart(data, "platform", "#FBC73C", scaleBySales, kindOfSales, test);
+        renderPieChart(data, "genre", "#F5941D", scaleBySales, kindOfSales, test);
+        renderPieChart(data, "publisher", "#F76627", scaleBySales, kindOfSales, test);
     }
 
 
@@ -864,12 +875,12 @@
 
     function mouseoverBar() {
         d3.select(this.parentNode).select("rect")
-            .attr("fill", "#00C851");
+            .attr("fill", "#31BFCD");
         d3.select(this.parentNode).select("rect")
             .transition()
             .duration(200)
             
-            .attr("stroke", "#00C851")
+            .attr("stroke", "#31BFCD")
             .style("cursor", "pointer");
 
         d3.select(this.parentNode).select(".ylabel")
@@ -907,7 +918,7 @@
             .transition()
             .duration(200)
             .attr("stroke", "none")
-            .attr("fill","#7283a7");
+            .attr("fill","#08617E");
 
         d3.select(this.parentNode).select(".ylabel")
             .transition()
@@ -921,11 +932,11 @@
 
         //change opacity of pie
         d3.selectAll(".arc." + this.parentNode.classList[1] + " path")
-            .style("opacity", "0.7");
+            .style("opacity", "0.75");
         d3.selectAll(".arc." + this.parentNode.classList[2] + " path")
-            .style("opacity", "0.7");
+            .style("opacity", "0.75");
         d3.selectAll(".arc." + this.parentNode.classList[3] + " path")
-            .style("opacity", "0.7");
+            .style("opacity", "0.75");
 
         //change opacity of info in pie
         d3.selectAll(".info." + this.parentNode.classList[1])
@@ -954,11 +965,11 @@
         }
 
         const width = 800;
-        const height = 1080;
+        const height = 1078;
         xValue = d => d.global_sales;
         yValue = d => d.name;
         
-        const margin = { top: 70, right: 70, bottom: 77, left: 180 + 132 };
+        const margin = { top: 70, right: 70, bottom: 50, left: 180 + 132 };
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
 
@@ -993,11 +1004,12 @@
         blur_filter.append('feColorMatrix')
             .attr('in', 'blurry')
             .attr('type', 'saturate')
-            .attr('values' , '0.50')
+            .attr('values' , '0.40')
             .attr('result', 'greyscale');
         var feMerge = blur_filter.append('feMerge');
         feMerge.append( 'feMergeNode' )
             .attr( 'in', 'greyscale' )
+
         if (emptyBool) {
             svg.attr("filter",'url(#blur)');
             svg.attr("pointer-events", "none");
@@ -1013,6 +1025,7 @@
 
         svg.append("text")
            .attr("class", "title")
+           .attr("fill", "#f2f2f2")
            .attr("x", margin.left)
            .attr("y", 40)
            .text("Top " + data.length + " Games out of " + filtered.length);
@@ -1038,9 +1051,11 @@
             .attr('class', 'axis-label')
             .style("font-family", "'Arial Black'")
             .attr('x', innerWidth / 2)
-            .attr("y", 25)
+            .attr("y", 35)
             .style("font-weight", "bold")
-            .text("Global Sales");
+            .attr("font-size", "12px")
+            .attr("fill", "#f2f2f2")
+            .text("Sold Copies in Million");
       
             // append g element for each data entry
             var container = g.selectAll("entry")
@@ -1062,7 +1077,7 @@
                 .attr('height', yScale.bandwidth() - 5)
                 .attr("stroke", "none")
                 .attr("stroke-width", "3")
-                .attr("fill",  "#7283a7");
+                .attr("fill",  "#08617E");
 
             //append y label
             entry.append("text")
@@ -1070,8 +1085,9 @@
                 .attr("x", -5)
                 .attr("y", (d, i) => yScale(i) + (yScale.bandwidth() + 5) / 2)
                 .style("text-anchor", "end")
-                .style("font-size", "15px")
+                .style("font-size", "13px")
                 .style("font-weight", "normal")
+                .attr("fill", "#f2f2f2")
                 .text(d => {
                     if (d.name.length > 30){
                         return d.name.substring(0, 26) + "...";
@@ -1083,11 +1099,13 @@
             //append sales to display on hover
             container.append("text")
                 .attr("class", "salesHover")
+                .attr("fill", "#f2f2f2")
+                .attr("font-weight", "bold")
                 .attr("opacity", "0")
                 .attr('x', d => xScale(d.global_sales) + 15)
                 .attr('y', (d, i) => yScale(i) + 11)
                 .style("cursor", "default")
-                .text(d => (d.global_sales / 1000000) + "M");
+                .text(d => (d.global_sales / 1000000));
 
     }
     

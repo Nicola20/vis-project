@@ -1,11 +1,11 @@
 body {
-   background-color: #263238;
+   background-color: #1C2331;
    font-family: "Arial Black", "Courier New", Verdana;
 }
 
 
 text {
-    fill: white;
+    fill: #f2f2f2;
     background-color: black;
 }
 
@@ -21,7 +21,7 @@ line {
     left: 50px;
     display: inline-block;
     position:absolute;
-    top: 35px;
+
 }
 
 
@@ -30,7 +30,7 @@ line {
     height: 50px;
     border-style: none;
     border-radius: 0 5px 5px 0;
-    background-color: #0277bd;
+    background-color: #096e90;
     margin-left: -10px;
     margin-top: 5px;
     display: inline-block;
@@ -44,7 +44,7 @@ line {
 }
 
 #filter-container {
-    background-color: white;
+    background-color: #f2f2f2;
     height: 100%;
     overflow: auto;
     display: none;
@@ -56,7 +56,7 @@ line {
 }
 
 #header {
-    background-color: #0277bd;
+    background-color: #096e90;
     height: 65px;
     text-align: center;
     padding-top: 14px;
@@ -65,7 +65,7 @@ line {
 
 #header span {
     transform: translateX(50%) translateY(50%);
-    color: white;
+    color: #f2f2f2;
     font-size: 20px;
 }
 
@@ -98,7 +98,7 @@ line {
 }
 
 .ui-slider-range {
-    background-color: #00C851;
+    background-color: #31BFCD;
 }
 
 .ui-slider-handle {
@@ -173,7 +173,7 @@ line {
   padding-left: 28px;
   cursor: pointer;
   font-size: 18px;
-  color: white;
+  color: #f2f2f2;
 }
 
 /* Hide the browser's default checkbox */
@@ -225,7 +225,7 @@ line {
   top: 3px;
   width: 3px;
   height: 7px;
-  border: solid white;
+  border: solid #f2f2f2;
   border-width: 0 3px 3px 0;
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
@@ -234,7 +234,7 @@ line {
 
 
 #toggle-sales {
-	margin-left: 50px;
+	margin-left: 95px;
 }
 
 .pie-chart-container {
@@ -243,22 +243,22 @@ line {
 }
 
 button {
-    background-color: #0277bd;
+    background-color: #096e90;
     border: none;
     margin-top: 10px;
     height: 35px;
-    color: white;
+    color: #f2f2f2;
     cursor: pointer;
     border-radius: 9px;
     /*box-shadow: 2px 3px 2px #999;*/
 }
 
 button:hover {
-    background-color: #026097;
+    background-color: #0b81a8;
 }
 
 #focus {
-    color: white;
+    color: #f2f2f2;
 }
 
 .label {
@@ -270,13 +270,13 @@ button:hover {
 .title {
     font-weight: bold;
     font-size: 20px;
-    color: white;
+    color: #f2f2f2;
 }
 
 .pie-title {
     font-weight: bold;
     font-size: 15px;
-    color: white;
+    color: #f2f2f2;
 
 }
 
@@ -318,7 +318,7 @@ button:hover {
     margin-left: 32%;
     margin-top: 150px;
     width: 650px;
-    color: white;
+    color: #f2f2f2;
     text-align: center;
 }
 
@@ -333,14 +333,25 @@ img {
     width: auto;
     margin-top: 20px;
 }
- #focus {
+
+
+#focus {
     font-weight: bold;
  }
 
- #selections {
+
+#selections {
     margin-bottom: 30px;
     width: 1000px;
     margin-left: 110px;
     margin-right: 90px;
     padding-bottom: 10px;
  }
+
+#container-container {
+    margin-top: 60px;
+}
+
+#reset-filter {
+    margin-top: 50px;
+}
