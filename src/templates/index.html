@@ -1037,12 +1037,11 @@
            .text("Top " + data.length + " Games out of " + filtered.length);
 
         const xAxisTickFormat = number =>
-            d3.format('.3s')(number)
+            d3.format(".1f")(number / 1000000)
             .replace('G', 'B');
   
         const xAxis = d3.axisBottom(xScale)
             .tickFormat(xAxisTickFormat)
-            
             .tickSize(-innerHeight);
 
 
