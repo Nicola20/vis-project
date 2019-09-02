@@ -668,7 +668,7 @@
             .style("cursor", "default")
             .style("text-anchor", "middle")
             .style("font-family", "'Arial Black'")
-            .text(d => format((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + " %");
+            .text(d => d3.format(".1f")((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + " %");
 
         if (scaleBySales) {
             svg.selectAll(".info.sales")
@@ -686,7 +686,7 @@
                 .style("text-anchor", "middle")
                 .style("font-family", "'Arial Black'")
                 .style("font-weight", "bold")
-                .text(d => d.data.value / 1000000 + " M");
+                .text(d => d3.format(".2f")(d.data.value / 1000000) + " M");
         }
     }
 
@@ -1110,7 +1110,7 @@
                 .attr('x', d => xScale(d.global_sales) + 15)
                 .attr('y', (d, i) => yScale(i) + 11)
                 .style("cursor", "default")
-                .text(d => (d.global_sales / 1000000));
+                .text(d => (d3.format(".2f")(d.global_sales / 1000000)));
 
     }
     
