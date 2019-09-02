@@ -21,6 +21,7 @@ line {
     left: 50px;
     display: inline-block;
     position:absolute;
+    top: 35px;
 }
 
 
@@ -233,7 +234,7 @@ line {
 
 
 #toggle-sales {
-	margin-left: 200px;
+	margin-left: 50px;
 }
 
 .pie-chart-container {
@@ -244,16 +245,20 @@ line {
 button {
     background-color: #0277bd;
     border: none;
-    margin-top: 20px;
+    margin-top: 10px;
     height: 35px;
     color: white;
     cursor: pointer;
     border-radius: 9px;
-    box-shadow: 2px 3px 2px #999;
+    /*box-shadow: 2px 3px 2px #999;*/
 }
 
 button:hover {
     background-color: #026097;
+}
+
+#focus {
+    color: white;
 }
 
 .label {
@@ -272,13 +277,16 @@ button:hover {
     font-weight: bold;
     font-size: 15px;
     color: white;
-    text-decoration: underline;
+
 }
 
 
 
 #select-feature {
-	float: right;
+	
+    position: absolute;
+    top: 0px;
+    right: 60px;
 }
 
 
@@ -324,5 +332,15 @@ img {
     height: 260px;
     width: auto;
     margin-top: 20px;
-
 }
+ #focus {
+    font-weight: bold;
+ }
+
+ #selections {
+    margin-bottom: 30px;
+    width: 1000px;
+    margin-left: 110px;
+    margin-right: 90px;
+    padding-bottom: 10px;
+ }

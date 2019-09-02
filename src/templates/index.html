@@ -83,17 +83,18 @@
 
 
     <div class="pie-chart-container">
-
-        <form>
-            <button type="button" id="toggle-sales">Change to Occurences</button>
-        </form>
+        <div id="selections">
         
+            <button type="button" id="toggle-sales">Change to Occurences</button>
 
-        <form id="select-feature">
-            <input type="radio" name="feature" value="platform" onclick="selectFeature()">Platform
-            <input type="radio" name="feature" value="genre" onclick="selectFeature()">Genre
-            <input type="radio" name="feature" value="publisher" onclick="selectFeature()">Publisher
-        </form>
+            <div id="select-feature">
+            <span id="focus">Set Focus on:</span>
+                <button value="platform" onclick="selectFeature(event)">Platform</button>
+                <button value="genre" onclick="selectFeature(event)">Genre</button>
+                <button value="publisher" onclick="selectFeature(event)">Publisher</button>
+
+            </div>
+        </div>
 
         <div id="container-1"></div>
         <div id="container-2"></div>
@@ -149,13 +150,9 @@
 
 
 
-    function selectFeature() {
-        for (var i = 0; i < 3; i++) {
-            if (document.getElementById("select-feature").querySelectorAll("input")[i].checked) {
-                console.log(document.getElementById("select-feature").querySelectorAll("input")[i].value)
-                selectedFeature = document.getElementById("select-feature").querySelectorAll("input")[i].value;
-            }
-        }
+    function selectFeature(e) {
+        selectedFeature = e.target.getAttribute("value");
+        console.log("feature " + selectedFeature);
         if(filtered != null) {
             render(filtered);
         } else {
@@ -752,12 +749,14 @@
         var container = "#container-";
         var size;
         var radius;
+        var x = 0;
 
         if (selectedFeature == feature) {
             container += "1";
             size = [1000, 547];
             radius = 205;
             console.log(radius)
+            x = 60;
         } else {
             container += test.pop();
             size = [400, 400];
@@ -802,11 +801,9 @@
         }
 
 
-
-
         svg.append("text")
             .attr("class", "pie-title")
-            .attr("x", 0)
+            .attr("x", x)
             .attr("y", 40)
             .text(feature.substring(0, 1).toUpperCase() + feature.substring(1));
 
