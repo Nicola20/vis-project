@@ -632,12 +632,12 @@
     }
 
 
-    function renderPieChart(data, feature, color, scaleBySales, kindOfSales) {
+    function renderPieChart(data_par, feature, color, scaleBySales, kindOfSales) {
 
         var empty = false;
 
-        if (data.length == 0) {
-            data = last_filtered;
+        if (data_par.length == 0) {
+            data_par = last_filtered;
             empty = true;
         }
         d3.select("#"  + feature).remove();
@@ -660,6 +660,16 @@
         blur_filter.append( 'feGaussianBlur' )
               .attr( 'stdDeviation', 3 )
               .attr('result', 'blur');
+
+        blur_filter.append('feColorMatrix')
+            .attr('in', 'blur')
+            .attr('type', 'saturate')
+            .attr('values' , '0.50')
+            .attr('result', 'greyscale');
+
+        var feMerge = blur_filter.append('feMerge');
+        feMerge.append( 'feMergeNode' )
+            .attr( 'in', 'greyscale' )
 
         if (empty) {
             svg.attr("filter",'url(#blurry)');
@@ -684,7 +694,7 @@
             .innerRadius(radius - 100)
             .outerRadius(radius);
 
-        const featureData = getFeatureDataForPie(data, feature, scaleBySales, kindOfSales);
+        const featureData = getFeatureDataForPie(data_par, feature, scaleBySales, kindOfSales);
 
         renderArcs(svg, pie, featureData, arc, color);
         renderLabels(svg, pie, featureData);
@@ -884,7 +894,7 @@
            .attr("class", "title")
            .attr("x", margin.left)
            .attr("y", 40)
-           .text("Top 50 Games");
+           .text("Top " + data_par.length + " Games out of " + filtered.length);
 
 
         const xAxisTickFormat = number =>
