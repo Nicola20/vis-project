@@ -17,6 +17,13 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <!-- credits for the ghost svg -->
+    <!-- <div>Icons made by
+            <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a>
+            from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+         </div> -->
+
 </head>
 <body>
 
@@ -33,6 +40,9 @@
             <span><strong>FILTER</strong></span>
         </div>
         <div id="filter">
+
+            <button id="reset-filter">Reset Filter</button>
+
         <div>
             <div class="dropdown-button" value="genre-filter">
                 <span>genre</span>
@@ -65,10 +75,17 @@
     </div>
 
 
+    <div id="error-message">
+        <h1>SORRY, WE COULD NOT FIND ANY RESULTS MATCHING THE FILTERS.</h1>
+        <img src="../static/ghost.svg">
+    </div>
+
+
+
     <div class="pie-chart-container">
 
         <form>
-            <button type="button" id="toggle-sales">Change to Sold Games</button>
+            <button type="button" id="toggle-sales">Change to Occurences</button>
         </form>
         
 
@@ -105,7 +122,7 @@
             data = json;
         }
     });
-    var scaleBySales = false;
+    var scaleBySales = true;
     const kindOfSales = "global_sales";
 
     
@@ -119,8 +136,9 @@
 
     var filtered = data.slice();
     var threshold = 0.02;
-
+    var last_filtered = data;
     var selectedFeature = "platform";
+
     render(data);
 
 
@@ -215,7 +233,17 @@
 
             d3.select('#barsvg').remove();
             render(filtered);
-          }
+
+            if (filtered.length != 0) {
+                last_filtered = filtered;
+            }
+
+            if (filtered.length == 0) {
+                $('#error-message').css("display" , "inline-block");
+            } else {
+                $('#error-message').css("display" , "none");
+            }
+    }
             
 
 
@@ -296,6 +324,25 @@
     });
 
 
+    $('#reset-filter').click(function(e) {
+        $("input[type='checkbox']:checked").prop("checked", false)
+        console.log("called");
+        filterQuery = {
+                genre: [],
+                platform: [],
+                publisher: []
+            };
+        var $slider = $("#slider-range");
+        $slider.slider("values", 0, 0);
+        $slider.slider("values", 1, 83);
+        $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
+        $( "#max" ).text($( "#slider-range" ).slider( "values", 1 ));
+        minRange = 0*1000000;
+        maxRange = 83*1000000;
+        filter();
+    });
+
+
 // -------------------------------------------------------------------------
 // CONSTANTS
 // -------------------------------------------------------------------------
@@ -313,12 +360,17 @@
     toggleSalesButton.addEventListener("click", toggle);
 
     function toggle() {
+        if ($(this).text() == "Change to Occurences") {
+            $(this).text("Change to Sold Games");
+        } else {
+            $(this).text("Change to Occurences");
+        }
+
         if (scaleBySales) {
             scaleBySales = false;
         } else {
             scaleBySales = true;
         }
-        
         render(filtered);
     }
 
@@ -674,20 +726,28 @@
             y = text.attr("y"),
             dy = parseFloat(text.attr("dy")),
             tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-        while (word = words.pop()) {
-          line.push(word);
-          tspan.text(line.join(" "));
-          if (tspan.node().getComputedTextLength() > width) {
-            line.pop();
-            tspan.text(line.join(" "));
-            line = [word];
-            tspan = text.append("tspan").attr("x", 0).attr("y", y + 1).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-          }
-        }
-      });
+
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", 0).attr("y", y + 1).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                }
+            }
+        });
     }
 
     function renderPieChart(data, feature, color, scaleBySales, kindOfSales, test) {
+
+        var empty = false;
+        if (data.length == 0) {
+            data = last_filtered;
+            empty = true;
+        }
+
         d3.select("#"  + feature).remove();
         var container = "#container-";
         var size;
@@ -714,6 +774,36 @@
 
         const svg = d3.select("#" + feature);
 
+
+        var defs = svg.append('defs');
+        // append filter element
+        var blur_filter = defs.append('filter')
+              .attr( 'id', 'blurry' );
+        // append gaussian blur to filter
+        blur_filter.append( 'feGaussianBlur' )
+              .attr( 'stdDeviation', 3 )
+              .attr('result', 'blur');
+        blur_filter.append('feColorMatrix')
+            .attr('in', 'blur')
+            .attr('type', 'saturate')
+            .attr('values' , '0.50')
+            .attr('result', 'greyscale');
+        var feMerge = blur_filter.append('feMerge');
+        feMerge.append( 'feMergeNode' )
+            .attr( 'in', 'greyscale' )
+        if (empty) {
+            svg.attr("filter",'url(#blurry)');
+            $('#toggle-sales').css("filter", "blur(5px)");
+            empty = false;
+            svg.attr("pointer-events", "none");
+        } else {
+            $('#toggle-sales').css("filter", "blur(0px)");
+            svg.attr("pointer-events", "auto");
+        }
+
+
+
+
         svg.append("text")
             .attr("class", "pie-title")
             .attr("x", 0)
@@ -727,8 +817,6 @@
             .innerRadius(radius / 1.95238)
             .outerRadius(radius);
 
-        console.log(arc.innerRadius())
-        console.log(arc.outerRadius())
 
         const featureData = getFeatureDataForPie(data, feature, scaleBySales, kindOfSales);
 
@@ -856,7 +944,14 @@
 
 
 
-    function renderBar(test) {
+    function renderBar(data) {
+
+
+        var emptyBool = false;
+        if (data.length == 0) {
+            emptyBool = true;
+            data = last_filtered.slice(0, 50);
+        }
 
         const width = 800;
         const height = 1080;
@@ -869,7 +964,7 @@
 
 
         xScale = d3.scaleLinear()
-            .domain([0, d3.max(test, xValue)])
+            .domain([0, d3.max(data, xValue)])
             .range([0, innerWidth]);
   
         yScale = d3.scaleBand()
@@ -884,14 +979,43 @@
             .attr("width" , width)
             .attr("height", height)
 
+
+
+
+        var defs = svg.append('defs');
+        // append filter element
+        var blur_filter = defs.append('filter')
+            .attr( 'id', 'blur' );
+        // append gaussian blur to filter
+        blur_filter.append( 'feGaussianBlur' )
+            .attr( 'stdDeviation', 5 )
+            .attr('result', 'blurry');
+        blur_filter.append('feColorMatrix')
+            .attr('in', 'blurry')
+            .attr('type', 'saturate')
+            .attr('values' , '0.50')
+            .attr('result', 'greyscale');
+        var feMerge = blur_filter.append('feMerge');
+        feMerge.append( 'feMergeNode' )
+            .attr( 'in', 'greyscale' )
+        if (emptyBool) {
+            svg.attr("filter",'url(#blur)');
+            svg.attr("pointer-events", "none");
+            emptyBool = false;
+        } else {
+            svg.attr("pointer-events", "auto");
+        }
+
+
+
         g = svg.append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
 
         svg.append("text")
-            .attr("class", "title")
-            .attr("x", margin.left)
-            .attr("y", 40)
-            .text("Top 50 Games");
+           .attr("class", "title")
+           .attr("x", margin.left)
+           .attr("y", 40)
+           .text("Top " + data.length + " Games out of " + filtered.length);
 
         const xAxisTickFormat = number =>
             d3.format('.3s')(number)
@@ -914,11 +1038,13 @@
             .attr('class', 'axis-label')
             .style("font-family", "'Arial Black'")
             .attr('x', innerWidth / 2)
+            .attr("y", 25)
+            .style("font-weight", "bold")
             .text("Global Sales");
       
             // append g element for each data entry
             var container = g.selectAll("entry")
-                .data(test)
+                .data(data)
                 .enter()
                 .append("g")
                 .attr("class", getClassForEntry);
