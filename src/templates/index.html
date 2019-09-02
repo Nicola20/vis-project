@@ -85,7 +85,7 @@
     <div class="pie-chart-container">
         <div id="selections">
         
-            <button type="button" id="toggle-sales">Change to Occurences</button>
+            <button type="button" id="toggle-sales">Scale by Occurences</button>
 
             <div id="select-feature">
             <span id="focus">Set Focus on:</span>
@@ -135,12 +135,13 @@
     var minRange = 0;
     var maxRange = 82.74 * 1000000;
 
-    var filtered = data.slice();
-    var threshold = 0.02;
-    var last_filtered = data;
-    var selectedFeature = "platform";
+    var filtered = JSON.parse(JSON.stringify(data));
+  
 
-    render(data);
+    var last_filtered = JSON.parse(JSON.stringify(filtered));
+    var selectedFeature = "platform";
+    filtered = computeAllOther(filtered);
+    render(filtered);
 
 
 // -------------------------------------------------------------------------
@@ -152,12 +153,7 @@
 
     function selectFeature(e) {
         selectedFeature = e.target.getAttribute("value");
-        console.log("feature " + selectedFeature);
-        if(filtered != null) {
-            render(filtered);
-        } else {
-            render(data);
-        }
+        render(filtered);
     }
 
 
@@ -212,8 +208,8 @@
         }
             
 
-            
-            filtered = data.filter(function(d) {
+            filtered = JSON.parse(JSON.stringify(data));
+            filtered = filtered.filter(function(d) {
                 return d.global_sales >= minRange && d.global_sales <= maxRange;
             });
 
@@ -227,12 +223,12 @@
                     });
                 });
 
-
+            filtered = computeAllOther(filtered);
             d3.select('#barsvg').remove();
             render(filtered);
 
             if (filtered.length != 0) {
-                last_filtered = filtered;
+                last_filtered = JSON.parse(JSON.stringify(filtered));
             }
 
             if (filtered.length == 0) {
@@ -240,12 +236,61 @@
             } else {
                 $('#error-message').css("display" , "none");
             }
+            render(filtered);
     }
             
 
 
 
+    function computeOther(data, feature, threshold) {
+        var featureValues = {};
+        var total = 0.0;
+        var flag = true;
 
+        for (var i = 0; i < data.length; i++) {
+            var key = data[i][feature];
+            if (featureValues[key] == null) {
+                if (scaleBySales) {
+                    featureValues[key] = data[i][kindOfSales];
+                    total += data[i][kindOfSales];
+                } else {
+                    featureValues[key] = 1.0;
+                    total += 1.0;
+                }
+            } else {
+                if (scaleBySales) {
+                    featureValues[key] += data[i][kindOfSales];
+                    total += data[i][kindOfSales];
+                } else {
+                    featureValues[key] += 1.0;
+                    total += 1.0;
+                }
+
+            }
+        }
+
+        for (var key in featureValues) {
+            featureValues[key] /= total;
+        }
+
+        for (var i = 0; i < data.length; i++) {
+            var key = data[i][feature];
+            if(featureValues[key] < threshold) {
+                data[i][feature] = "Other";
+            }
+        }
+
+        return data;
+    }
+
+
+    function computeAllOther(data) {
+        var threshold = 0.02;
+        data = computeOther(data, "platform", threshold);
+        data = computeOther(data, "genre", threshold);
+        data = computeOther(data, "publisher", threshold);
+        return data;
+    }
   
 
 
@@ -287,7 +332,6 @@
                 minRange = ui.values[0]*1000000;
                 maxRange = ui.values[1]*1000000;
                 filter();
-                render(filtered);
             }
         });
         $( "#min" ).text($( "#slider-range" ).slider( "values", 0 ));
@@ -323,7 +367,6 @@
 
     $('#reset-filter').click(function(e) {
         $("input[type='checkbox']:checked").prop("checked", false)
-        console.log("called");
         filterQuery = {
                 genre: [],
                 platform: [],
@@ -357,10 +400,10 @@
     toggleSalesButton.addEventListener("click", toggle);
 
     function toggle() {
-        if ($(this).text() == "Change to Occurences") {
-            $(this).text("Change to Sold Games");
+        if ($(this).text() == "Scale by Occurences") {
+            $(this).text("Scale by Sold Games");
         } else {
-            $(this).text("Change to Occurences");
+            $(this).text("Scale by Occurences");
         }
 
         if (scaleBySales) {
@@ -368,7 +411,7 @@
         } else {
             scaleBySales = true;
         }
-        render(filtered);
+        filter();
     }
 
 
@@ -382,59 +425,7 @@
     // ---------------------------------------------------------------------
 
 
-    function computeOther(feature, threshold) {
-        var featureData = []; //change from array to object to allow featureData["Nintendo"]
-        var total = 0.0;
-        
-        for (var i = 0; i < filtered.length; i++) {
-            var featureKey = filtered[i][feature];
-            var flag = true;
-            for (var j = 0; j < featureData.length; j++) {
-                if (featureData[j].key == featureKey) {
-                    if (scaleBySales) {
-                        featureData[j].value += filtered[i][kindOfSales];
-                        total += filtered[i][kindOfSales];
-                    } else {
-                        featureData[j].value += 1;
-                        total += 1.0;
-                    }
-                    flag = false;
-                    break;
-                }
-            }
-
-            if (flag) {
-                if (scaleBySales) {
-                    featureData.push({"key" : featureKey, "value" : filtered[i][kindOfSales]});
-                } else {
-                    featureData.push({"key" : featureKey, "value" : 1.0});
-                }
-            }
-        }
-
-        for (var i = 0; i < featureData.length; i++) {
-            featureData[i].value /= total;
-        }
-        for (var i = 0; i < filtered.length; i++) {
-            var x = filtered[i][feature]
-            for (var j = 0; j < featureData.length; j++) {
-                if (featureData[j].key == x) {
-                    if (featureData[j].value <= threshold) {
-                        filtered[i][feature] = "Other";
-                    }
-                    break;
-                }
-            }
-
-        }
-        return filtered;
-    }
-
-    function computeAllOther(threshold) {
-        computeOther("genre", threshold);
-        computeOther("publisher", threshold);
-        computeOther("platform", threshold);
-    }
+   
 
 
     function getFeatureDataForPie(test, feature, scaleBySales, kindOfSales) {
@@ -586,7 +577,7 @@
                 return (midangle < Math.PI ? 'start' : 'end')
             })
             .text(d => {
-                if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
+                if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 >= 2) {
                     return d.data.key;
                 }
             });
@@ -608,7 +599,7 @@
             .style("fill", "none")
             .attr("stroke-width", "2")
             .attr("points", d => {
-                if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 > 2) {
+                if ((d.endAngle - d.startAngle) / (2 * Math.PI) * 100 >= 2) {
                     var posA = arc.centroid(d);
                     var posB = textArc.centroid(d);
           
@@ -808,6 +799,18 @@
             .text(feature.substring(0, 1).toUpperCase() + feature.substring(1));
 
         var pie = d3.pie()
+            .sort((a,b) => {
+                if (a.key == "Other")
+                    return 1;
+                if (b.key == "Other")
+                    return -1;
+                if (+a.value - +b.value < 0)
+                    return 1;
+                if (+a.value - +b.value > 0)
+                    return -1;
+                if (+a.value - +b.value == 0)
+                    return 0;
+            })
             .value(d => d.value);
 
         var arc = d3.arc()
