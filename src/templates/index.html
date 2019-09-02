@@ -72,7 +72,7 @@
     </div>
 
     <div id="error-message">
-        <h1>Sorry, there is no data for these filter</h1>
+        <h1>SORRY, WE COULD NOT FIND ANY RESULTS MATCHING THE FILTERS.</h1>
         <img src="../static/ghost.svg">
     </div>
 
@@ -854,8 +854,20 @@
 
         // append gaussian blur to filter
         blur_filter.append( 'feGaussianBlur' )
-              .attr( 'stdDeviation', 3 )
-              .attr('result', 'blur');
+              .attr( 'stdDeviation', 5 )
+              .attr('result', 'blurry');
+
+        blur_filter.append('feColorMatrix')
+            .attr('in', 'blurry')
+            .attr('type', 'saturate')
+            .attr('values' , '0.50')
+            .attr('result', 'greyscale');
+
+        var feMerge = blur_filter.append('feMerge');
+        feMerge.append( 'feMergeNode' )
+            .attr( 'in', 'greyscale' )
+
+
 
         if (emptyBool) {
             svg.attr("filter",'url(#blur)');

@@ -282,16 +282,23 @@ button:hover {
     display: none;
     position: fixed;
     z-index: 20;
-    margin-left: 30%;
+    margin-left: 32%;
     margin-top: 150px;
-    width: 600px;
+    width: 650px;
     color: white;
     text-align: center;
+}
+
+#error-message h1 {
     font-weight: bold;
+    font-family: "Arial Black", "Courier New", Verdana;
+    font-size: 40px;
 }
 
 img {
     height: 260px;
     width: auto;
+    margin-top: 20px;
+
 }
 
